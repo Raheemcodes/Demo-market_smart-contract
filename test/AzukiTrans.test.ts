@@ -1,5 +1,6 @@
 import {
   loadFixture,
+  reset,
   time,
 } from '@nomicfoundation/hardhat-toolbox/network-helpers';
 import { expect } from 'chai';
@@ -13,16 +14,19 @@ describe('NFT', () => {
   let _totalSupply: number = 3;
   let _mintPriceGWei: number = 8;
   let _mintStart: number = +new Date('3000-07-24') / 1000;
-  let _publicSale: number = _mintStart + 60 * 60;
-  let _mintEnd: number = _publicSale + 60 * 60;
+  let _presale: number = 60 * 60;
+  let _publicsale: number = 60 * 60;
 
-  const _mint = (instance: AzukiTrans, account: any, price: number) => {
-    return instance
-      .connect(account)
-      .safeMint({ value: ethers.parseUnits(`${price}`, 'gwei') });
+  const resetValue = () => {
+    _totalSupply = 3;
+    _mintPriceGWei = 8;
+    _mintStart = +new Date('3000-07-24') / 1000;
+    _presale = 60 * 60;
+    _publicsale = 60 * 60;
   };
 
   let deployContract = async () => {
+    // await reset();
     // Contracts are deployed using the first signer/account by default
     const [owner, otherAccount, anotherAccount, ...accounts] =
       await ethers.getSigners();
@@ -32,8 +36,8 @@ describe('NFT', () => {
       _totalSupply,
       _mintPriceGWei,
       _mintStart,
-      _publicSale,
-      _mintEnd
+      _presale,
+      _publicsale
     );
 
     return { instance, owner, otherAccount, anotherAccount, accounts };
@@ -41,7 +45,7 @@ describe('NFT', () => {
 
   describe('deployment', () => {
     it('should grant deployer MINT_ROLE & ADMIN_ROLE', async () => {
-      const { instance, owner } = await loadFixture(deployContract);
+      const { instance, owner } = await deployContract();
 
       const isMinter: boolean = await instance.hasRole(
         MINTER_ROLE,
@@ -54,10 +58,11 @@ describe('NFT', () => {
 
       expect(isMinter).to.be.true;
       expect(isAdmin).to.be.true;
+      await reset();
     });
 
     it('should set values passed as argument to respective fields', async () => {
-      const { instance, owner } = await loadFixture(deployContract);
+      const { instance } = await deployContract();
 
       const totalSupply: bigint = await instance.totalSupply();
 
@@ -70,8 +75,29 @@ describe('NFT', () => {
       expect(totalSupply).to.equal(_totalSupply);
       expect(mintPriceGWei).to.equal(_mintPriceGWei);
       expect(mintStart).to.equal(_mintStart);
-      expect(publicSale).to.equal(_publicSale);
-      expect(mintEnd).to.equal(_mintEnd);
+      expect(publicSale).to.equal(_mintStart + _presale);
+      expect(mintEnd).to.equal(_mintStart + _presale + _publicsale);
+      await reset();
+    });
+
+    it('should throw error if totalSupply <= 0', async () => {
+      _totalSupply = 0;
+
+      await expect(loadFixture(deployContract)).to.rejectedWith(
+        'total supply must be greater than zero'
+      );
+
+      resetValue();
+    });
+
+    it('should throw error if mintPrice <= 0', async () => {
+      _mintPriceGWei = 0;
+
+      await expect(loadFixture(deployContract)).to.rejectedWith(
+        'mint price must be greater than zero'
+      );
+
+      resetValue();
     });
 
     it('should validate mintStart', async () => {
@@ -80,19 +106,41 @@ describe('NFT', () => {
       await expect(deployContract()).to.rejectedWith(
         'mint start time must be greater than current time'
       );
+
+      await reset();
+    });
+
+    it('should throw error if presale <= 0', async () => {
+      _presale = 0;
+
+      await expect(loadFixture(deployContract)).to.rejectedWith(
+        'presale must be greater than zero'
+      );
+      resetValue();
+    });
+
+    it('should throw error if publicsale <= 0', async () => {
+      _publicsale = 0;
+      await expect(loadFixture(deployContract)).to.rejectedWith(
+        'publicsale must be greater than zero'
+      );
+      resetValue();
     });
   });
 
   describe('ADMIN', () => {
     it('should be able to MINT', async () => {
-      const { instance, owner } = await loadFixture(deployContract);
+      const { instance, owner } = await deployContract();
 
       await time.increaseTo(_mintStart);
 
-      await expect(_mint(instance, owner, _mintPriceGWei)).to.emit(
-        instance,
-        'Transfer'
-      );
+      await expect(
+        instance
+          .connect(owner)
+          .safeMint({ value: ethers.parseUnits(`${_mintPriceGWei}`, 'gwei') })
+      ).to.emit(instance, 'Transfer');
+
+      await reset();
     });
 
     it('should be able to grant MINT role', async () => {
@@ -165,8 +213,7 @@ describe('NFT', () => {
       const { instance, otherAccount, anotherAccount } = await loadFixture(
         deployContract
       );
-
-      await time.increaseTo(_publicSale);
+      await time.increaseTo(_mintStart + _presale);
 
       await expect(
         instance
@@ -209,7 +256,7 @@ describe('NFT', () => {
       );
 
       await instance.grantMintRole(otherAccount);
-      await time.increaseTo(_mintEnd);
+      await time.increaseTo(_mintStart + _presale + _publicsale);
 
       await expect(
         instance
@@ -221,7 +268,7 @@ describe('NFT', () => {
     it('should not allow account to mint only once', async () => {
       const { instance, otherAccount } = await loadFixture(deployContract);
 
-      await time.increaseTo(_publicSale);
+      await time.increaseTo(_mintStart + _presale);
 
       await instance
         .connect(otherAccount)
@@ -236,7 +283,7 @@ describe('NFT', () => {
     it("should not allow to mint if account doesn't have the amount", async () => {
       const { instance, otherAccount } = await loadFixture(deployContract);
 
-      await time.increaseTo(_publicSale);
+      await time.increaseTo(_mintStart + _presale);
 
       await expect(
         instance.connect(otherAccount).safeMint({
@@ -246,19 +293,18 @@ describe('NFT', () => {
     });
 
     it('should not be able to MINT after all supply have been minted', async () => {
+      await reset();
+      _totalSupply = 2;
       const { instance, owner, otherAccount, anotherAccount, accounts } =
-        await loadFixture(deployContract);
+        await deployContract();
 
-      await time.increaseTo(_publicSale);
+      await time.increaseTo(_mintStart + _presale);
 
       await instance
         .connect(otherAccount)
         .safeMint({ value: ethers.parseUnits(`${_mintPriceGWei}`, 'gwei') });
       await instance
         .connect(anotherAccount)
-        .safeMint({ value: ethers.parseUnits(`${_mintPriceGWei}`, 'gwei') });
-      await instance
-        .connect(accounts[0])
         .safeMint({ value: ethers.parseUnits(`${_mintPriceGWei}`, 'gwei') });
 
       await expect(
@@ -269,11 +315,12 @@ describe('NFT', () => {
     });
 
     it('should increase by one after each mint', async () => {
+      await reset();
       const { instance, owner, otherAccount, anotherAccount, accounts } =
-        await loadFixture(deployContract);
+        await deployContract();
       const beforeMint = (await instance.mint()).total;
 
-      await time.increaseTo(_publicSale);
+      await time.increaseTo(_mintStart + _presale);
 
       await instance
         .connect(otherAccount)

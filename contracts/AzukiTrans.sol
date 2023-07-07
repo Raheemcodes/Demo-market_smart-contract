@@ -34,37 +34,35 @@ contract AzukiTrans is ERC721, AccessControl {
         uint _totalSupply,
         uint _mintPrice,
         uint _mintStart,
-        uint _publicMintStart,
-        uint _mintEnd
+        uint _presale,
+        uint _publicsale
     ) ERC721("MyToken", "MTK") {
         _grantRole(DEFAULT_ADMIN_ROLE, msg.sender);
         _grantRole(MINTER_ROLE, msg.sender);
-        initialize(
-            _totalSupply,
-            _mintPrice,
-            _mintStart,
-            _publicMintStart,
-            _mintEnd
-        );
+        initialize(_totalSupply, _mintPrice, _mintStart, _presale, _publicsale);
     }
 
     function initialize(
         uint _totalSupply,
         uint _mintPrice,
         uint _mintStart,
-        uint _publicSale,
-        uint _mintEnd
-    ) internal onlyRole(DEFAULT_ADMIN_ROLE) {
+        uint _presale,
+        uint _publicsale
+    ) private onlyRole(DEFAULT_ADMIN_ROLE) {
+        require(_totalSupply > 0, "total supply must be greater than zeros");
+        require(_mintPrice > 0, "mint price must be greater than zero");
         require(
             _mintStart > block.timestamp,
             "mint start time must be greater than current time"
         );
+        require(_presale > 0, "presale must be greater than zero");
+        require(_publicsale > 0, "publicsale must be greater than zero");
 
         totalSupply = _totalSupply;
         mint.priceGWei = _mintPrice * 1 gwei;
         mint.time.start = _mintStart;
-        mint.time.publicSale = _publicSale;
-        mint.time.end = _mintEnd;
+        mint.time.publicSale = _mintStart + _presale;
+        mint.time.end = _mintStart + _presale + _publicsale;
         shuffleArr();
     }
 
