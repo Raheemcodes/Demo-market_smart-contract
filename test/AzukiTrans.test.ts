@@ -195,9 +195,7 @@ describe('NFT', () => {
 
   describe('MINT', () => {
     it('should be able mint if account has MINT role', async () => {
-      const { instance, otherAccount, anotherAccount } = await loadFixture(
-        deployContract
-      );
+      const { instance, otherAccount } = await loadFixture(deployContract);
 
       await instance.grantMintRole(otherAccount);
       await time.increaseTo(_mintStart);
@@ -210,9 +208,7 @@ describe('NFT', () => {
     });
 
     it('should be able to mint without a role during public sale', async () => {
-      const { instance, otherAccount, anotherAccount } = await loadFixture(
-        deployContract
-      );
+      const { instance, otherAccount } = await loadFixture(deployContract);
       await time.increaseTo(_mintStart + _presale);
 
       await expect(
@@ -223,9 +219,7 @@ describe('NFT', () => {
     });
 
     it("shouldn't be able to mint if account doesn't have mint role", async () => {
-      const { instance, otherAccount, anotherAccount } = await loadFixture(
-        deployContract
-      );
+      const { instance, otherAccount } = await loadFixture(deployContract);
 
       await time.increaseTo(_mintStart);
 
@@ -237,9 +231,7 @@ describe('NFT', () => {
     });
 
     it("shouldn't be able to mint if mint hasn't started", async () => {
-      const { instance, otherAccount, anotherAccount } = await loadFixture(
-        deployContract
-      );
+      const { instance, otherAccount } = await loadFixture(deployContract);
 
       await instance.grantMintRole(otherAccount);
 
@@ -251,9 +243,7 @@ describe('NFT', () => {
     });
 
     it("shouldn't be able to mint if mint has ended", async () => {
-      const { instance, otherAccount, anotherAccount } = await loadFixture(
-        deployContract
-      );
+      const { instance, otherAccount } = await loadFixture(deployContract);
 
       await instance.grantMintRole(otherAccount);
       await time.increaseTo(_mintStart + _presale + _publicsale);
@@ -295,7 +285,7 @@ describe('NFT', () => {
     it('should not be able to MINT after all supply have been minted', async () => {
       await reset();
       _totalSupply = 2;
-      const { instance, owner, otherAccount, anotherAccount, accounts } =
+      const { instance, owner, otherAccount, anotherAccount } =
         await deployContract();
 
       await time.increaseTo(_mintStart + _presale);
@@ -316,8 +306,7 @@ describe('NFT', () => {
 
     it('should increase by one after each mint', async () => {
       await reset();
-      const { instance, owner, otherAccount, anotherAccount, accounts } =
-        await deployContract();
+      const { instance, otherAccount } = await deployContract();
       const beforeMint = (await instance.mint()).total;
 
       await time.increaseTo(_mintStart + _presale);
@@ -329,6 +318,32 @@ describe('NFT', () => {
       const afterMint = (await instance.mint()).total;
 
       expect(beforeMint + BigInt(1)).to.equal(afterMint);
+    });
+  });
+
+  describe('BURN', () => {
+    it('should total token minted by 1', async () => {
+      await reset();
+      const { instance, owner } = await deployContract();
+
+      await time.increaseTo(_mintStart + _presale);
+      await instance
+        .connect(owner)
+        .safeMint({ value: ethers.parseUnits(`${_mintPriceGWei}`, 'gwei') });
+      const beforeBurnTotal = (await instance.mint()).total;
+      await instance.connect(owner).burn();
+      const afterBurnTotal = (await instance.mint()).total;
+
+      expect(beforeBurnTotal - BigInt(1)).to.equal(afterBurnTotal);
+    });
+
+    it("shouldn't burn if token has been minted", async () => {
+      await reset();
+      const { instance, owner } = await deployContract();
+
+      await expect(instance.connect(owner).burn()).to.be.revertedWith(
+        'No token to burn'
+      );
     });
   });
 });
