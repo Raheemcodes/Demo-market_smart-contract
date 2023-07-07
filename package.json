@@ -1,0 +1,25 @@
+{
+  "name": "hardhat",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "start": "npx hardhat node",
+    "compile": "npx hardhat compile",
+    "deploy": "npx hardhat run scripts/deploy.ts --network",
+    "verify": "npx hardhat verify --network",
+    "console": "npx hardhat console",
+    "test": "npx hardhat test"
+  },
+  "author": "Raheem",
+  "license": "ISC",
+  "devDependencies": {
+    "@nomicfoundation/hardhat-toolbox": "^3.0.0",
+    "@types/sinon": "^10.0.15",
+    "hardhat": "^2.16.1",
+    "sinon": "^15.2.0"
+  },
+  "dependencies": {
+    "@openzeppelin/contracts": "^4.9.2"
+  }
+}
