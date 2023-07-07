@@ -8,7 +8,8 @@ import "@openzeppelin/contracts/token/ERC721/ERC721.sol";
 import "@openzeppelin/contracts/access/AccessControl.sol";
 
 // URI from Azuki
-contract AzukiDemo is ERC721, AccessControl {
+// AzukiDemo
+contract AzukiTrans is ERC721, AccessControl {
     struct MintTime {
         uint start;
         uint publicSale;
@@ -54,6 +55,11 @@ contract AzukiDemo is ERC721, AccessControl {
         uint _publicSale,
         uint _mintEnd
     ) internal onlyRole(DEFAULT_ADMIN_ROLE) {
+        require(
+            _mintStart > block.timestamp,
+            "mint start time must be greater than current time"
+        );
+
         totalSupply = _totalSupply;
         mint.priceGWei = _mintPrice * 1 gwei;
         mint.time.start = _mintStart;

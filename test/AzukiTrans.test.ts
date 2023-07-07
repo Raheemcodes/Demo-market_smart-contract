@@ -5,7 +5,6 @@ import {
 import { expect } from 'chai';
 import { ethers } from 'hardhat';
 import { AzukiTrans } from '../typechain-types';
-
 describe('NFT', () => {
   // const DEFAULT_ADDRESS = '0x0000000000000000000000000000000000000000';
   const MINTER_ROLE = ethers.keccak256(ethers.toUtf8Bytes('MINTER_ROLE'));
@@ -23,14 +22,14 @@ describe('NFT', () => {
       .safeMint({ value: ethers.parseUnits(`${price}`, 'gwei') });
   };
 
-  let deployContract = async (supply?: number) => {
+  let deployContract = async () => {
     // Contracts are deployed using the first signer/account by default
     const [owner, otherAccount, anotherAccount, ...accounts] =
       await ethers.getSigners();
 
     const AzukiTrans = await ethers.getContractFactory('AzukiTrans');
     const instance = await AzukiTrans.deploy(
-      supply! || _totalSupply,
+      _totalSupply,
       _mintPriceGWei,
       _mintStart,
       _publicSale,
@@ -73,6 +72,14 @@ describe('NFT', () => {
       expect(mintStart).to.equal(_mintStart);
       expect(publicSale).to.equal(_publicSale);
       expect(mintEnd).to.equal(_mintEnd);
+    });
+
+    it('should validate mintStart', async () => {
+      time.increaseTo(_mintStart + 1);
+
+      await expect(deployContract()).to.rejectedWith(
+        'mint start time must be greater than current time'
+      );
     });
   });
 
