@@ -91,9 +91,20 @@ contract AzukiTrans is ERC721, AccessControl {
         }
     }
 
-    function startMint() public {}
-
-    function stopMint() public {}
+    function resetMint(
+        uint _mintStart,
+        uint _presale,
+        uint _publicsale
+    ) public onlyRole(DEFAULT_ADMIN_ROLE) {
+        burnAll();
+        initialize(
+            totalSupply,
+            mint.priceGWei,
+            _mintStart,
+            _presale,
+            _publicsale
+        );
+    }
 
     function presaleMint() private onlyRole(MINTER_ROLE) {
         _safeMint(msg.sender, tokenIdMap[mint.total]);
@@ -119,8 +130,17 @@ contract AzukiTrans is ERC721, AccessControl {
         mint.total++;
     }
 
-    function burn() public {
+    function burnAll() public onlyRole(DEFAULT_ADMIN_ROLE) {
+        uint n = mint.total;
+
+        for (uint i = 0; i < n; i++) {
+            burn();
+        }
+    }
+
+    function burn() public onlyRole(DEFAULT_ADMIN_ROLE) {
         require(mint.total > 0, "No token to burn");
+
         mint.total--;
         _burn(tokenIdMap[mint.total]);
     }

@@ -139,7 +139,21 @@ describe('NFT', () => {
           .connect(owner)
           .safeMint({ value: ethers.parseUnits(`${_mintPriceGWei}`, 'gwei') })
       ).to.emit(instance, 'Transfer');
+      await reset();
+    });
 
+    it('should be able to burn', async () => {
+      const { instance, owner } = await deployContract();
+
+      await time.increaseTo(_mintStart + _presale);
+      await instance
+        .connect(owner)
+        .safeMint({ value: ethers.parseUnits(`${_mintPriceGWei}`, 'gwei') });
+
+      await expect(instance.connect(owner).burn()).to.emit(
+        instance,
+        'Transfer'
+      );
       await reset();
     });
 
@@ -322,7 +336,7 @@ describe('NFT', () => {
   });
 
   describe('BURN', () => {
-    it('should total token minted by 1', async () => {
+    it('should reduce total token minted by 1', async () => {
       await reset();
       const { instance, owner } = await deployContract();
 
@@ -344,6 +358,13 @@ describe('NFT', () => {
       await expect(instance.connect(owner).burn()).to.be.revertedWith(
         'No token to burn'
       );
+    });
+
+    it('should not allow to burn if not admin', async () => {
+      await reset();
+      const { instance, owner } = await deployContract();
+
+      await expect(instance.connect(owner).burn()).to.be.reverted;
     });
   });
 });
