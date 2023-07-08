@@ -5,13 +5,13 @@ import {
 } from '@nomicfoundation/hardhat-toolbox/network-helpers';
 import { expect } from 'chai';
 import { ethers } from 'hardhat';
-import { AzukiTrans } from '../typechain-types';
+
 describe('NFT', () => {
   // const DEFAULT_ADDRESS = '0x0000000000000000000000000000000000000000';
   const MINTER_ROLE = ethers.keccak256(ethers.toUtf8Bytes('MINTER_ROLE'));
   const ADMIN_ROLE =
     '0x0000000000000000000000000000000000000000000000000000000000000000';
-  let _totalSupply: number = 3;
+  let _totalSupply: number = 5;
   let _mintPriceGWei: number = 8;
   let _mintStart: number = +new Date('3000-07-24') / 1000;
   let _presale: number = 60 * 60;
@@ -154,6 +154,51 @@ describe('NFT', () => {
         instance,
         'Transfer'
       );
+      await reset();
+    });
+
+    it('should be able to burn all token', async () => {
+      const { instance, owner, otherAccount, anotherAccount } =
+        await deployContract();
+
+      await time.increaseTo(_mintStart + _presale);
+      await instance
+        .connect(owner)
+        .safeMint({ value: ethers.parseUnits(`${_mintPriceGWei}`, 'gwei') });
+      await instance
+        .connect(otherAccount)
+        .safeMint({ value: ethers.parseUnits(`${_mintPriceGWei}`, 'gwei') });
+      await instance
+        .connect(anotherAccount)
+        .safeMint({ value: ethers.parseUnits(`${_mintPriceGWei}`, 'gwei') });
+
+      await expect(instance.connect(owner).burnAll()).to.emit(
+        instance,
+        'Transfer'
+      );
+      await reset();
+    });
+
+    it('should be able to reset MINT', async () => {
+      const { instance, owner, otherAccount, anotherAccount } =
+        await deployContract();
+
+      await time.increaseTo(_mintStart + _presale);
+
+      await instance
+        .connect(owner)
+        .safeMint({ value: ethers.parseUnits(`${_mintPriceGWei}`, 'gwei') });
+      await instance
+        .connect(otherAccount)
+        .safeMint({ value: ethers.parseUnits(`${_mintPriceGWei}`, 'gwei') });
+      await instance
+        .connect(anotherAccount)
+        .safeMint({ value: ethers.parseUnits(`${_mintPriceGWei}`, 'gwei') });
+
+      await expect(
+        instance.connect(owner).resetMint(_mintStart * 2, _presale, _publicsale)
+      ).to.emit(instance, 'Transfer');
+
       await reset();
     });
 
