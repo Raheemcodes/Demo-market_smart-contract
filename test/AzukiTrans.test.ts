@@ -1,3 +1,4 @@
+import { AzukiTrans } from './../typechain-types/contracts/AzukiTrans.sol/AzukiTrans';
 import {
   loadFixture,
   reset,
@@ -25,9 +26,12 @@ describe('NFT', () => {
     _publicsale = 60 * 60;
   };
 
+  afterEach(async () => {
+    resetValue();
+    await reset();
+  });
+
   let deployContract = async () => {
-    // await reset();
-    // Contracts are deployed using the first signer/account by default
     const [owner, otherAccount, anotherAccount, ...accounts] =
       await ethers.getSigners();
 
@@ -58,7 +62,6 @@ describe('NFT', () => {
 
       expect(isMinter).to.be.true;
       expect(isAdmin).to.be.true;
-      await reset();
     });
 
     it('should set values passed as argument to respective fields', async () => {
@@ -77,27 +80,22 @@ describe('NFT', () => {
       expect(mintStart).to.equal(_mintStart);
       expect(publicSale).to.equal(_mintStart + _presale);
       expect(mintEnd).to.equal(_mintStart + _presale + _publicsale);
-      await reset();
     });
 
     it('should throw error if totalSupply <= 0', async () => {
       _totalSupply = 0;
 
-      await expect(loadFixture(deployContract)).to.rejectedWith(
+      await expect(deployContract()).to.rejectedWith(
         'total supply must be greater than zero'
       );
-
-      resetValue();
     });
 
     it('should throw error if mintPrice <= 0', async () => {
       _mintPriceGWei = 0;
 
-      await expect(loadFixture(deployContract)).to.rejectedWith(
+      await expect(deployContract()).to.rejectedWith(
         'mint price must be greater than zero'
       );
-
-      resetValue();
     });
 
     it('should validate mintStart', async () => {
@@ -106,25 +104,21 @@ describe('NFT', () => {
       await expect(deployContract()).to.rejectedWith(
         'mint start time must be greater than current time'
       );
-
-      await reset();
     });
 
     it('should throw error if presale <= 0', async () => {
       _presale = 0;
 
-      await expect(loadFixture(deployContract)).to.rejectedWith(
+      await expect(deployContract()).to.rejectedWith(
         'presale must be greater than zero'
       );
-      resetValue();
     });
 
     it('should throw error if publicsale <= 0', async () => {
       _publicsale = 0;
-      await expect(loadFixture(deployContract)).to.rejectedWith(
+      await expect(deployContract()).to.rejectedWith(
         'publicsale must be greater than zero'
       );
-      resetValue();
     });
   });
 
@@ -139,7 +133,6 @@ describe('NFT', () => {
           .connect(owner)
           .safeMint({ value: ethers.parseUnits(`${_mintPriceGWei}`, 'gwei') })
       ).to.emit(instance, 'Transfer');
-      await reset();
     });
 
     it('should be able to burn', async () => {
@@ -154,7 +147,6 @@ describe('NFT', () => {
         instance,
         'Transfer'
       );
-      await reset();
     });
 
     it('should be able to burn all token', async () => {
@@ -176,7 +168,6 @@ describe('NFT', () => {
         instance,
         'Transfer'
       );
-      await reset();
     });
 
     it('should be able to reset MINT', async () => {
@@ -198,12 +189,10 @@ describe('NFT', () => {
       await expect(
         instance.connect(owner).resetMint(_mintStart * 2, _presale, _publicsale)
       ).to.emit(instance, 'Transfer');
-
-      await reset();
     });
 
     it('should be able to grant MINT role', async () => {
-      const { instance, otherAccount } = await loadFixture(deployContract);
+      const { instance, otherAccount } = await deployContract();
 
       await instance.grantMintRole(otherAccount);
       const isMinter = await instance.hasRole(MINTER_ROLE, otherAccount);
@@ -212,7 +201,7 @@ describe('NFT', () => {
     });
 
     it('should be able to revoke MINT role', async () => {
-      const { instance, otherAccount } = await loadFixture(deployContract);
+      const { instance, otherAccount } = await deployContract();
 
       await instance.grantMintRole(otherAccount);
       await instance.revokeMintRole(otherAccount);
@@ -223,7 +212,7 @@ describe('NFT', () => {
     });
 
     it('should be able to grant ADMIN role', async () => {
-      const { instance, otherAccount } = await loadFixture(deployContract);
+      const { instance, otherAccount } = await deployContract();
 
       await instance.grantRole(ADMIN_ROLE, otherAccount);
       const isAdmin: boolean = await instance.hasRole(ADMIN_ROLE, otherAccount);
@@ -232,7 +221,7 @@ describe('NFT', () => {
     });
 
     it('should be able to revoke ADMIN role', async () => {
-      const { instance, otherAccount } = await loadFixture(deployContract);
+      const { instance, otherAccount } = await deployContract();
 
       await instance.grantRole(ADMIN_ROLE, otherAccount);
       await instance.revokeRole(ADMIN_ROLE, otherAccount);
@@ -242,19 +231,98 @@ describe('NFT', () => {
       expect(isMinter).to.be.false;
     });
 
-    it("shouldn't be able to grant roles if not an ADMIN", async () => {
-      const { instance, otherAccount, anotherAccount } = await loadFixture(
-        deployContract
-      );
+    it('should not be able to burn if not an ADMIN', async () => {
+      const { instance, owner, otherAccount } = await deployContract();
 
-      await expect(instance.connect(otherAccount).grantMintRole(anotherAccount))
-        .to.be.reverted;
+      await time.increaseTo(_mintStart + _presale);
+      await instance
+        .connect(owner)
+        .safeMint({ value: ethers.parseUnits(`${_mintPriceGWei}`, 'gwei') });
+
+      await expect(instance.connect(otherAccount).burn()).to.revertedWith(
+        `AccessControl: account ${otherAccount.address.toLowerCase()} is missing role ${ADMIN_ROLE}`
+      );
+    });
+
+    it('should not be able to burn all token if not an ADMIN', async () => {
+      const { instance, owner, otherAccount, anotherAccount } =
+        await deployContract();
+
+      await time.increaseTo(_mintStart + _presale);
+      await instance
+        .connect(owner)
+        .safeMint({ value: ethers.parseUnits(`${_mintPriceGWei}`, 'gwei') });
+      await instance
+        .connect(otherAccount)
+        .safeMint({ value: ethers.parseUnits(`${_mintPriceGWei}`, 'gwei') });
+      await instance
+        .connect(anotherAccount)
+        .safeMint({ value: ethers.parseUnits(`${_mintPriceGWei}`, 'gwei') });
+
+      await expect(instance.connect(otherAccount).burnAll()).to.be.revertedWith(
+        `AccessControl: account ${otherAccount.address.toLowerCase()} is missing role ${ADMIN_ROLE}`
+      );
+    });
+
+    it('should not be able to reset MINT if not an ADMIN', async () => {
+      const { instance, owner, otherAccount, anotherAccount } =
+        await deployContract();
+
+      await time.increaseTo(_mintStart + _presale);
+
+      await instance
+        .connect(owner)
+        .safeMint({ value: ethers.parseUnits(`${_mintPriceGWei}`, 'gwei') });
+      await instance
+        .connect(otherAccount)
+        .safeMint({ value: ethers.parseUnits(`${_mintPriceGWei}`, 'gwei') });
+      await instance
+        .connect(anotherAccount)
+        .safeMint({ value: ethers.parseUnits(`${_mintPriceGWei}`, 'gwei') });
+
+      await expect(
+        instance
+          .connect(otherAccount)
+          .resetMint(_mintStart * 2, _presale, _publicsale)
+      ).to.revertedWith(
+        `AccessControl: account ${otherAccount.address.toLowerCase()} is missing role ${ADMIN_ROLE}`
+      );
+    });
+
+    it("shouldn't be able to grant roles if not an ADMIN", async () => {
+      const { instance, otherAccount, anotherAccount } = await deployContract();
+
+      await expect(
+        instance.connect(otherAccount).grantRole(ADMIN_ROLE, anotherAccount)
+      ).to.revertedWith(
+        `AccessControl: account ${otherAccount.address.toLowerCase()} is missing role ${ADMIN_ROLE}`
+      );
+      await expect(
+        instance.connect(otherAccount).grantMintRole(anotherAccount)
+      ).to.revertedWith(
+        `AccessControl: account ${otherAccount.address.toLowerCase()} is missing role ${ADMIN_ROLE}`
+      );
+    });
+
+    it("shouldn't be able to revoke roles if not an ADMIN", async () => {
+      const { instance, otherAccount, anotherAccount } = await deployContract();
+
+      await expect(
+        instance.connect(otherAccount).revokeRole(ADMIN_ROLE, anotherAccount)
+      ).to.revertedWith(
+        `AccessControl: account ${otherAccount.address.toLowerCase()} is missing role ${ADMIN_ROLE}`
+      );
+      await expect(
+        instance.connect(otherAccount).revokeMintRole(anotherAccount)
+      ).to.revertedWith(
+        `AccessControl: account ${otherAccount.address.toLowerCase()} is missing role ${ADMIN_ROLE}`
+      );
     });
   });
 
   describe('MINT', () => {
     it('should be able mint if account has MINT role', async () => {
-      const { instance, otherAccount } = await loadFixture(deployContract);
+      const { instance, otherAccount } = await deployContract();
 
       await instance.grantMintRole(otherAccount);
       await time.increaseTo(_mintStart);
@@ -267,7 +335,7 @@ describe('NFT', () => {
     });
 
     it('should be able to mint without a role during public sale', async () => {
-      const { instance, otherAccount } = await loadFixture(deployContract);
+      const { instance, otherAccount } = await deployContract();
       await time.increaseTo(_mintStart + _presale);
 
       await expect(
@@ -278,7 +346,7 @@ describe('NFT', () => {
     });
 
     it("shouldn't be able to mint if account doesn't have mint role", async () => {
-      const { instance, otherAccount } = await loadFixture(deployContract);
+      const { instance, otherAccount } = await deployContract();
 
       await time.increaseTo(_mintStart);
 
@@ -286,11 +354,13 @@ describe('NFT', () => {
         instance
           .connect(otherAccount)
           .safeMint({ value: ethers.parseUnits(`${_mintPriceGWei}`, 'gwei') })
-      ).to.be.reverted;
+      ).to.revertedWith(
+        `AccessControl: account ${otherAccount.address.toLowerCase()} is missing role ${MINTER_ROLE}`
+      );
     });
 
     it("shouldn't be able to mint if mint hasn't started", async () => {
-      const { instance, otherAccount } = await loadFixture(deployContract);
+      const { instance, otherAccount } = await deployContract();
 
       await instance.grantMintRole(otherAccount);
 
@@ -302,7 +372,7 @@ describe('NFT', () => {
     });
 
     it("shouldn't be able to mint if mint has ended", async () => {
-      const { instance, otherAccount } = await loadFixture(deployContract);
+      const { instance, otherAccount } = await deployContract();
 
       await instance.grantMintRole(otherAccount);
       await time.increaseTo(_mintStart + _presale + _publicsale);
@@ -315,7 +385,7 @@ describe('NFT', () => {
     });
 
     it('should not allow account to mint only once', async () => {
-      const { instance, otherAccount } = await loadFixture(deployContract);
+      const { instance, otherAccount } = await deployContract();
 
       await time.increaseTo(_mintStart + _presale);
 
@@ -330,7 +400,7 @@ describe('NFT', () => {
     });
 
     it("should not allow to mint if account doesn't have the amount", async () => {
-      const { instance, otherAccount } = await loadFixture(deployContract);
+      const { instance, otherAccount } = await deployContract();
 
       await time.increaseTo(_mintStart + _presale);
 
@@ -342,7 +412,6 @@ describe('NFT', () => {
     });
 
     it('should not be able to MINT after all supply have been minted', async () => {
-      await reset();
       _totalSupply = 2;
       const { instance, owner, otherAccount, anotherAccount } =
         await deployContract();
@@ -364,7 +433,6 @@ describe('NFT', () => {
     });
 
     it('should increase by one after each mint', async () => {
-      await reset();
       const { instance, otherAccount } = await deployContract();
       const beforeMint = (await instance.mint()).total;
 
@@ -382,7 +450,6 @@ describe('NFT', () => {
 
   describe('BURN', () => {
     it('should reduce total token minted by 1', async () => {
-      await reset();
       const { instance, owner } = await deployContract();
 
       await time.increaseTo(_mintStart + _presale);
@@ -397,7 +464,6 @@ describe('NFT', () => {
     });
 
     it("shouldn't burn if token has been minted", async () => {
-      await reset();
       const { instance, owner } = await deployContract();
 
       await expect(instance.connect(owner).burn()).to.be.revertedWith(
@@ -405,11 +471,56 @@ describe('NFT', () => {
       );
     });
 
-    it('should not allow to burn if not admin', async () => {
-      await reset();
+    it('should be able to not be able to burn all token', async () => {
       const { instance, owner } = await deployContract();
 
-      await expect(instance.connect(owner).burn()).to.be.reverted;
+      await expect(instance.connect(owner).burnAll()).to.be.revertedWith(
+        'No token to burn'
+      );
+    });
+  });
+
+  describe('resetMint()', () => {
+    let newMintTime: number, presale: number, publicsale: number;
+    let mint: [bigint, AzukiTrans.MintTimeStructOutput, bigint] & {
+      priceGWei: bigint;
+      time: AzukiTrans.MintTimeStructOutput;
+      total: bigint;
+    };
+
+    beforeEach(async () => {
+      newMintTime = _mintStart * 2;
+      presale = 60 * 60 * 2;
+      publicsale = 60 * 60 * 5;
+
+      const { instance, owner, otherAccount, anotherAccount } =
+        await deployContract();
+
+      await time.increaseTo(_mintStart + _presale);
+
+      await instance
+        .connect(owner)
+        .safeMint({ value: ethers.parseUnits(`${_mintPriceGWei}`, 'gwei') });
+      await instance
+        .connect(otherAccount)
+        .safeMint({ value: ethers.parseUnits(`${_mintPriceGWei}`, 'gwei') });
+      await instance
+        .connect(anotherAccount)
+        .safeMint({ value: ethers.parseUnits(`${_mintPriceGWei}`, 'gwei') });
+
+      await instance.connect(owner).resetMint(newMintTime, presale, publicsale);
+
+      mint = await instance.mint();
+    });
+
+    it('should be able to reset mint start time, presale and public duration when invoked', async () => {
+      expect(mint.time.start).to.equal(newMintTime);
+      expect(mint.time.publicSale).to.equal(newMintTime + presale);
+      expect(mint.time.end).to.equal(newMintTime + presale + publicsale);
+    });
+
+    it('should burn all token', () => {
+      expect(mint.total).to.equal(0);
     });
   });
 });
