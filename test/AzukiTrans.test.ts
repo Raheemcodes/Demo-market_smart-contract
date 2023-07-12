@@ -1,11 +1,7 @@
-import { AzukiTrans } from './../typechain-types/contracts/AzukiTrans.sol/AzukiTrans';
-import {
-  loadFixture,
-  reset,
-  time,
-} from '@nomicfoundation/hardhat-toolbox/network-helpers';
+import { reset, time } from '@nomicfoundation/hardhat-toolbox/network-helpers';
 import { expect } from 'chai';
 import { ethers } from 'hardhat';
+import { AzukiTrans } from '../typechain-types';
 
 describe('NFT', () => {
   // const DEFAULT_ADDRESS = '0x0000000000000000000000000000000000000000';
