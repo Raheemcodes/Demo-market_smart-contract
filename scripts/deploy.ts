@@ -4,8 +4,8 @@ import { ethers } from 'hardhat';
   try {
     let _totalSupply: number = 50;
     let _mintPriceGWei: number = 8;
-    let _mintStart: number = +new Date('3000-07-24 12:35') / 1000;
-    let _presale: number = 60 * 60 * 24 * 5 + 60 * 60;
+    let _mintStart: number = Math.ceil(Date.now() / 1000) + 60;
+    let _presale: number = 60 * 5;
     let _publicsale: number = 60 * 60;
 
     const nft = await ethers.deployContract('AzukiTrans', [
@@ -15,6 +15,15 @@ import { ethers } from 'hardhat';
       _presale,
       _publicsale,
     ]);
+
+    console.log(
+      _totalSupply,
+      _mintPriceGWei,
+      _mintStart,
+      _presale,
+      _publicsale
+    );
+
     await nft.waitForDeployment();
 
     console.log(`Deployed at ${await nft.getAddress()}`);

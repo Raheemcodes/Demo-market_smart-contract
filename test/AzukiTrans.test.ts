@@ -10,7 +10,7 @@ describe('NFT', () => {
     '0x0000000000000000000000000000000000000000000000000000000000000000';
   let _totalSupply: number = 5;
   let _mintPriceGWei: number = 8;
-  let _mintStart: number = +new Date('3000-07-24') / 1000;
+  let _mintStart: number = Math.round(Date.now() / 1000);
   let _presale: number = 60 * 60;
   let _publicsale: number = 60 * 60;
 

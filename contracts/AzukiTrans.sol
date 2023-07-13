@@ -117,7 +117,7 @@ contract AzukiTrans is ERC721, AccessControl {
     function safeMint() public payable {
         uint curTime = block.timestamp;
         require(
-            curTime < mint.time.end && curTime > mint.time.start,
+            curTime < mint.time.end && curTime >= mint.time.start,
             "Mint has either ended or not started"
         );
         require(balanceOf(msg.sender) == 0, "You've minted!");
