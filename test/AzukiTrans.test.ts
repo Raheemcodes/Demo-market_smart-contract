@@ -10,7 +10,7 @@ describe('NFT', () => {
     '0x0000000000000000000000000000000000000000000000000000000000000000';
   let _totalSupply: number = 5;
   let _mintPriceGWei: number = 8;
-  let _mintStart: number = Math.round(Date.now() / 1000);
+  let _mintStart: number = Math.round(Date.now() / 1000) + 60;
   let _presale: number = 60 * 60;
   let _publicsale: number = 60 * 60;
 
@@ -31,7 +31,7 @@ describe('NFT', () => {
     const [owner, otherAccount, anotherAccount, ...accounts] =
       await ethers.getSigners();
 
-    const AzukiTrans = await ethers.getContractFactory('AzukiTrans');
+    const AzukiTrans = await ethers.getContractFactory('AzukiDemo');
     const instance = await AzukiTrans.deploy(
       _totalSupply,
       _mintPriceGWei,

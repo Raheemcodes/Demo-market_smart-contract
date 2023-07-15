@@ -16,7 +16,7 @@ const mnemonic = fs
   .toString()
   .trim();
 
-const config: HardhatUserConfig = {
+const config: any = {
   solidity: '0.8.18',
   networks: {
     sepolia: {
