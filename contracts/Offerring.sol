@@ -36,6 +36,11 @@ contract Offerring is OfferringHelper, NFTHelper, ReentrancyGuard {
         placed(offers[msg.sender])
         validOffer
     {
+        require(
+            msg.value != offers[msg.sender],
+            "Sent value is same as current offer"
+        );
+
         uint256 formerOffer = offers[msg.sender];
         offers[msg.sender] = msg.value;
 

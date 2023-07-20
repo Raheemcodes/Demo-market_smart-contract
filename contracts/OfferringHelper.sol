@@ -56,7 +56,7 @@ contract OfferringHelper {
     }
 
     modifier placed(uint256 offer) {
-        require(offer != 0, "No offers have been placed by this buyer");
+        require(offer != 0, "No offer have been placed by this buyer");
         _;
     }
 
