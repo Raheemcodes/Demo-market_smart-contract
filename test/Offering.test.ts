@@ -1,7 +1,6 @@
 import { reset, time } from '@nomicfoundation/hardhat-toolbox/network-helpers';
 import { expect } from 'chai';
 import { ethers } from 'hardhat';
-import { TypedEventLog } from '../typechain-types/common';
 
 describe('Offerring', () => {
   const MINTER_ROLE = ethers.keccak256(ethers.toUtf8Bytes('MINTER_ROLE'));
@@ -101,6 +100,55 @@ describe('Offerring', () => {
   });
 
   describe('updateOffer()', () => {
-    it('', () => {});
+    it('should update accounts offer with value sent when invoked', async () => {
+      const { offerring, nft, owner, otherAccount, anotherAccount } =
+        await deployContract();
+
+      const formerOffer: number = 100;
+      const newOffer: number = 200;
+      await offerring.placeOffer({ value: formerOffer });
+      await offerring.updateOffer({ value: newOffer });
+      const result = await offerring.offers(owner);
+
+      expect(newOffer).to.equal(result);
+    });
+
+    it('should emit OfferUpdated event when invoked', async () => {
+      const { offerring, nft, owner, otherAccount, anotherAccount } =
+        await deployContract();
+
+      const formOffer: number = 100;
+      const newOffer: number = 200;
+      await offerring.placeOffer({ value: formOffer });
+      const tx = await offerring.updateOffer({ value: newOffer });
+
+      expect(tx)
+        .emit(offerring, 'OfferUpdated')
+        .withArgs(nft, owner, formOffer, newOffer);
+    });
+
+    it("should throw an exception if user hasn't placed an offer", async () => {
+      const { offerring, nft, owner, otherAccount, anotherAccount } =
+        await deployContract();
+
+      const offer: number = 100;
+
+      await expect(offerring.updateOffer({ value: offer })).to.be.rejectedWith(
+        'No offers have been placed by this buyer'
+      );
+    });
+
+    it('should throw an excetion new offer is 0', async () => {
+      const { offerring, nft, owner, otherAccount, anotherAccount } =
+        await deployContract();
+
+      const formerOffer: number = 100;
+      const newOffer: number = 0;
+      await offerring.placeOffer({ value: formerOffer });
+
+      await expect(
+        offerring.updateOffer({ value: newOffer })
+      ).to.be.rejectedWith('Offer must be > 0');
+    });
   });
 });
