@@ -1,7 +1,7 @@
+import { AzukiDemo } from './../typechain-types/contracts/AzukiDemo';
 import { reset, time } from '@nomicfoundation/hardhat-toolbox/network-helpers';
 import { expect } from 'chai';
 import { ethers } from 'hardhat';
-import { AzukiTrans } from '../typechain-types';
 
 describe('NFT', () => {
   // const DEFAULT_ADDRESS = '0x0000000000000000000000000000000000000000';
@@ -31,8 +31,8 @@ describe('NFT', () => {
     const [owner, otherAccount, anotherAccount, ...accounts] =
       await ethers.getSigners();
 
-    const AzukiTrans = await ethers.getContractFactory('AzukiDemo');
-    const instance = await AzukiTrans.deploy(
+    const AzukiDemo = await ethers.getContractFactory('AzukiDemo');
+    const instance = await AzukiDemo.deploy(
       _totalSupply,
       _mintPriceGWei,
       _mintStart,
@@ -478,9 +478,9 @@ describe('NFT', () => {
 
   describe('resetMint()', () => {
     let newMintTime: number, presale: number, publicsale: number;
-    let mint: [bigint, AzukiTrans.MintTimeStructOutput, bigint] & {
+    let mint: [bigint, AzukiDemo.MintTimeStructOutput, bigint] & {
       priceGWei: bigint;
-      time: AzukiTrans.MintTimeStructOutput;
+      time: AzukiDemo.MintTimeStructOutput;
       total: bigint;
     };
 
