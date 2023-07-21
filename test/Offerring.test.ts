@@ -66,6 +66,17 @@ describe('Offerring', () => {
         .withArgs(nft, owner, offer);
     });
 
+    it('should increase contract balance by price sent', async () => {
+      const { offerring, nft, owner } = await deployContract();
+
+      const offer: number = 100;
+      const balanceBefore = await offerring.getBalance();
+      await offerring.placeOffer({ value: offer });
+      const balanceAfter = await offerring.getBalance();
+
+      expect(balanceAfter).to.equal(balanceBefore + BigInt(offer));
+    });
+
     it('should throw an exception if account has placed an offer', async () => {
       const { offerring } = await deployContract();
 
@@ -123,6 +134,21 @@ describe('Offerring', () => {
       expect(tx)
         .emit(offerring, 'OfferUpdated')
         .withArgs(nft, owner, formOffer, newOffer);
+    });
+
+    it('should subtract from offer from contract balance and add new offer', async () => {
+      const { offerring, nft, owner } = await deployContract();
+
+      const offer: number = 100;
+      const newOffer: number = 200;
+      await offerring.placeOffer({ value: offer });
+      const balanceBefore = await offerring.getBalance();
+      await offerring.updateOffer({ value: newOffer });
+      const balanceAfter = await offerring.getBalance();
+
+      expect(balanceAfter).to.equal(
+        balanceBefore - BigInt(offer) + BigInt(newOffer)
+      );
     });
 
     it("should throw an exception if user hasn't placed an offer", async () => {
@@ -200,6 +226,19 @@ describe('Offerring', () => {
         .withArgs(nft, owner, formerOffer, offer);
     });
 
+    it('should increase  contract balance by new offer sent', async () => {
+      const { offerring, nft, owner } = await deployContract();
+
+      const offer: number = 100;
+      const extraOffer: number = 20;
+      await offerring.placeOffer({ value: offer });
+      const balanceBefore = await offerring.getBalance();
+      await offerring.increaseOffer({ value: extraOffer });
+      const balanceAfter = await offerring.getBalance();
+
+      expect(balanceAfter).to.equal(balanceBefore + BigInt(extraOffer));
+    });
+
     it("should throw an exception if invoker hasn't placed an offer", async () => {
       const { offerring } = await deployContract();
 
@@ -258,6 +297,19 @@ describe('Offerring', () => {
       const tx = await offerring.reduceOfferTo(to);
 
       expect(tx).emit(offerring, 'OfferReduced').withArgs(nft, owner, from, to);
+    });
+
+    it('should reduce contract balance by new difference between buyers balance and offer passed', async () => {
+      const { offerring, nft, owner } = await deployContract();
+
+      const from: number = 100;
+      const to: number = 10;
+      await offerring.placeOffer({ value: from });
+      const balanceBefore = await offerring.getBalance();
+      await offerring.reduceOfferTo(to);
+      const balanceAfter = await offerring.getBalance();
+
+      expect(balanceAfter).to.equal(balanceBefore - (BigInt(100) - BigInt(to)));
     });
 
     it('should throw an exception if offer has not been placed', async () => {
@@ -329,6 +381,18 @@ describe('Offerring', () => {
       expect(tx).emit(offerring, 'OfferWithdrawn').withArgs(nft, owner, offer);
     });
 
+    it('should reduce contract balance by buyer offer', async () => {
+      const { offerring, nft, owner } = await deployContract();
+
+      const offer: number = 100;
+      await offerring.placeOffer({ value: offer });
+      const balanceBefore = await offerring.getBalance();
+      await offerring.withdrawOffer();
+      const balanceAfter = await offerring.getBalance();
+
+      expect(balanceAfter).to.equal(balanceBefore - BigInt(offer));
+    });
+
     it('should throw an exception if offer has not been placed', async () => {
       const { offerring } = await deployContract();
 
@@ -398,6 +462,22 @@ describe('Offerring', () => {
       expect(tx)
         .emit(offerring, 'OfferTaken')
         .withArgs(nft, buyer, seller, tokenId, offer);
+    });
+
+    it('should reduce contract balance by buyer offer', async () => {
+      const { offerring, nft, owner, anotherAccount } = await deployContract();
+      const seller = owner;
+      const buyer = anotherAccount;
+
+      const offer: number = 100;
+      await offerring.connect(buyer).placeOffer({ value: offer });
+      const { tokenId } = await safeMint(nft, seller, _mintPriceGWei);
+      await nft.connect(seller).setApprovalForAll(offerring, true);
+      const balanceBefore = await offerring.getBalance();
+      await offerring.connect(seller).takeupOffer(buyer, Number(tokenId));
+      const balanceAfter = await offerring.getBalance();
+
+      expect(balanceAfter).to.equal(balanceBefore - BigInt(offer));
     });
 
     it('should throw an exception if seller is not token owner', async () => {
