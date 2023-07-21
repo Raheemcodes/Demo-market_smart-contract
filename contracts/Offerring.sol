@@ -7,13 +7,21 @@ import "./OfferringHelper.sol";
 import "./NFTHelper.sol";
 
 contract Offerring is OfferringHelper, NFTHelper, ReentrancyGuard {
-    mapping(address => uint256) public offers;
-    uint256 public totalNumOfOffers;
+    mapping(address => uint256) internal offers;
+    uint256 private totalNumOfOffers;
 
     ERC721 private nft;
 
     constructor(ERC721 _nft) OfferringHelper(_nft) NFTHelper(_nft) {
         nft = _nft;
+    }
+
+    function getOffer(address buyer) public view returns (uint) {
+        return offers[buyer];
+    }
+
+    function getTotalNumOfOffers() public view returns (uint) {
+        return totalNumOfOffers;
     }
 
     function placeOffer()

@@ -7,33 +7,26 @@ import "./ListingHelper.sol";
 import "./Offerring.sol";
 
 contract NFTMarketPlace is ListingHelper, Offerring {
-    struct Listing {
-        mapping(uint256 => uint256) prices;
-        uint256 totalTokenListed;
-    }
-
-    modifier notlisted(uint256 tokenId) {
-        address owner = nft.ownerOf(tokenId);
-        require(
-            listings[owner].prices[tokenId] == 0,
-            "Token has already been listed"
-        );
-        _;
-    }
-
-    modifier listed(uint256 tokenId) {
-        address owner = nft.ownerOf(tokenId);
-        require(listings[owner].prices[tokenId] > 0, "Token is not listed");
-        _;
-    }
-
-    mapping(address => Listing) public listings;
-
     ERC721 private nft;
-    uint256 public totalTokenListed;
+    uint256 private totalTokenListed;
 
     constructor(ERC721 _nft) ListingHelper(_nft) Offerring(_nft) {
         nft = _nft;
+    }
+
+    function getPrice(
+        address seller,
+        uint256 tokenId
+    ) public view returns (uint256) {
+        return listings[seller].prices[tokenId];
+    }
+
+    function getMyTotalListedToken() public view returns (uint256) {
+        return listings[msg.sender].totalTokenListed;
+    }
+
+    function getTotalListedToken() public view returns (uint256) {
+        return totalTokenListed;
     }
 
     function list(
@@ -118,16 +111,5 @@ contract NFTMarketPlace is ListingHelper, Offerring {
 
         payable(owner).transfer(price);
         emit ListPurchased(nft, owner, msg.sender, tokenId, price);
-    }
-
-    function getPrice(
-        address seller,
-        uint256 tokenId
-    ) public view returns (uint256) {
-        return listings[seller].prices[tokenId];
-    }
-
-    function getMyTotalListedToken() public view returns (uint256) {
-        return listings[msg.sender].totalTokenListed;
     }
 }

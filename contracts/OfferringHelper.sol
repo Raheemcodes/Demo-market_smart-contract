@@ -56,12 +56,12 @@ contract OfferringHelper {
     }
 
     modifier placed(uint256 offer) {
-        require(offer != 0, "No offer have been placed by this buyer");
+        require(offer > 0, "No offer have been placed by this buyer");
         _;
     }
 
     modifier validOffer() {
-        require(msg.value != 0, "Offer must be > 0");
+        require(msg.value > 0, "Offer must be > 0");
         _;
     }
 }

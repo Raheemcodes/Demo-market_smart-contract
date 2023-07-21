@@ -39,7 +39,7 @@ describe('Offerring', () => {
       const offer: number = 100;
 
       await offerring.placeOffer({ value: offer });
-      const result = await offerring.offers(owner);
+      const result = await offerring.getOffer(owner);
 
       expect(result).to.equal(BigInt(offer));
     });
@@ -48,9 +48,9 @@ describe('Offerring', () => {
       const { offerring } = await deployContract();
       const offer: number = 100;
 
-      const before = await offerring.totalNumOfOffers();
+      const before = await offerring.getTotalNumOfOffers();
       await offerring.placeOffer({ value: offer });
-      const after = await offerring.totalNumOfOffers();
+      const after = await offerring.getTotalNumOfOffers();
 
       expect(after).to.equal(before + BigInt(1));
     });
@@ -94,7 +94,7 @@ describe('Offerring', () => {
       const newOffer: number = 200;
       await offerring.placeOffer({ value: formerOffer });
       await offerring.updateOffer({ value: newOffer });
-      const result = await offerring.offers(owner);
+      const result = await offerring.getOffer(owner);
 
       expect(newOffer).to.equal(result);
     });
@@ -105,9 +105,9 @@ describe('Offerring', () => {
       const offer: number = 100;
       const newOffer: number = 30;
       await offerring.placeOffer({ value: offer });
-      const totalOffer = await offerring.totalNumOfOffers();
+      const totalOffer = await offerring.getTotalNumOfOffers();
       await offerring.updateOffer({ value: newOffer });
-      const newTotalOffer = await offerring.totalNumOfOffers();
+      const newTotalOffer = await offerring.getTotalNumOfOffers();
 
       expect(newTotalOffer).to.equal(totalOffer);
     });
@@ -168,7 +168,7 @@ describe('Offerring', () => {
       const extraOffer: number = 20;
       await offerring.placeOffer({ value: formerOffer });
       await offerring.increaseOffer({ value: extraOffer });
-      const offer = await offerring.offers(owner);
+      const offer = await offerring.getOffer(owner);
 
       expect(offer).to.equal(formerOffer + extraOffer);
     });
@@ -179,9 +179,9 @@ describe('Offerring', () => {
       const offer: number = 100;
       const newOffer: number = 30;
       await offerring.placeOffer({ value: offer });
-      const totalOffer = await offerring.totalNumOfOffers();
+      const totalOffer = await offerring.getTotalNumOfOffers();
       await offerring.increaseOffer({ value: newOffer });
-      const newTotalOffer = await offerring.totalNumOfOffers();
+      const newTotalOffer = await offerring.getTotalNumOfOffers();
 
       expect(newTotalOffer).to.equal(totalOffer);
     });
@@ -193,7 +193,7 @@ describe('Offerring', () => {
       const extraOffer: number = 20;
       await offerring.placeOffer({ value: formerOffer });
       const tx = await offerring.increaseOffer({ value: extraOffer });
-      const offer = await offerring.offers(owner);
+      const offer = await offerring.getOffer(owner);
 
       expect(tx)
         .emit(offerring, 'OfferIncreased')
@@ -231,7 +231,7 @@ describe('Offerring', () => {
       const to: number = 10;
       await offerring.placeOffer({ value: from });
       await offerring.reduceOfferTo(to);
-      const offer = await offerring.offers(owner);
+      const offer = await offerring.getOffer(owner);
 
       expect(to).to.equal(offer);
     });
@@ -242,9 +242,9 @@ describe('Offerring', () => {
       const from: number = 100;
       const to: number = 10;
       await offerring.placeOffer({ value: from });
-      const totalOffer = await offerring.totalNumOfOffers();
+      const totalOffer = await offerring.getTotalNumOfOffers();
       await offerring.reduceOfferTo(to);
-      const newTotalOffer = await offerring.totalNumOfOffers();
+      const newTotalOffer = await offerring.getTotalNumOfOffers();
 
       expect(newTotalOffer).to.equal(totalOffer);
     });
@@ -302,7 +302,7 @@ describe('Offerring', () => {
       const formerOffer: number = 100;
       await offerring.placeOffer({ value: formerOffer });
       await offerring.withdrawOffer();
-      const newOffer = await offerring.offers(owner);
+      const newOffer = await offerring.getOffer(owner);
 
       expect(newOffer).to.equal(0);
     });
@@ -312,9 +312,9 @@ describe('Offerring', () => {
 
       const offer: number = 100;
       await offerring.placeOffer({ value: offer });
-      const totalOffer = await offerring.totalNumOfOffers();
+      const totalOffer = await offerring.getTotalNumOfOffers();
       await offerring.withdrawOffer();
-      const newTotalOffer = await offerring.totalNumOfOffers();
+      const newTotalOffer = await offerring.getTotalNumOfOffers();
 
       expect(newTotalOffer).to.equal(totalOffer - BigInt(1));
     });
@@ -362,7 +362,7 @@ describe('Offerring', () => {
       const { tokenId } = await safeMint(nft, seller, _mintPriceGWei);
       await nft.connect(seller).setApprovalForAll(offerring, true);
       await offerring.connect(seller).takeupOffer(buyer, Number(tokenId));
-      const offer = await offerring.offers(buyer);
+      const offer = await offerring.getOffer(buyer);
 
       expect(offer).to.equal(0);
     });
@@ -375,9 +375,9 @@ describe('Offerring', () => {
       await offerring.connect(buyer).placeOffer({ value: 100 });
       const { tokenId } = await safeMint(nft, seller, _mintPriceGWei);
       await nft.connect(seller).setApprovalForAll(offerring, true);
-      const totalOffers = await offerring.totalNumOfOffers();
+      const totalOffers = await offerring.getTotalNumOfOffers();
       await offerring.connect(seller).takeupOffer(buyer, Number(tokenId));
-      const newTotalOffers = await offerring.totalNumOfOffers();
+      const newTotalOffers = await offerring.getTotalNumOfOffers();
 
       expect(newTotalOffers).to.equal(totalOffers - BigInt(1));
     });
@@ -389,7 +389,7 @@ describe('Offerring', () => {
 
       await offerring.connect(buyer).placeOffer({ value: 100 });
       const { tokenId } = await safeMint(nft, seller, _mintPriceGWei);
-      const offer = await offerring.offers(buyer);
+      const offer = await offerring.getOffer(buyer);
       await nft.connect(seller).setApprovalForAll(offerring, true);
       const tx = await offerring
         .connect(seller)
@@ -412,7 +412,7 @@ describe('Offerring', () => {
 
       await expect(
         offerring.connect(anotherAccount).takeupOffer(buyer, Number(tokenId))
-      ).to.be.rejectedWith('You not the owner of this nft');
+      ).to.be.rejectedWith("You're not the owner of this token");
     });
 
     it('should throw an exception if token owner has not approved contract', async () => {
@@ -426,7 +426,7 @@ describe('Offerring', () => {
       await expect(
         offerring.connect(seller).takeupOffer(buyer, Number(tokenId))
       ).to.be.rejectedWith(
-        'This contract is not approved to transfer from this nft'
+        'This contract is not approved to transfer this token'
       );
     });
 

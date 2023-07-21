@@ -15,14 +15,14 @@ contract NFTHelper {
         require(
             nft.getApproved(nftId) == address(this) ||
                 nft.isApprovedForAll(owner, address(this)),
-            "This contract is not approved to transfer from this nft"
+            "This contract is not approved to transfer this token"
         );
         _;
     }
 
     modifier tokenOwner(uint256 nftId) {
         address owner = nft.ownerOf(nftId);
-        require(owner == msg.sender, "You not the owner of this nft");
+        require(owner == msg.sender, "You're not the owner of this token");
         _;
     }
 
