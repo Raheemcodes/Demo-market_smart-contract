@@ -4,9 +4,6 @@ import { ethers } from 'hardhat';
 import safeMint from './helper/safemint.helper';
 
 describe('Offerring', () => {
-  const MINTER_ROLE = ethers.keccak256(ethers.toUtf8Bytes('MINTER_ROLE'));
-  const ADMIN_ROLE =
-    '0x0000000000000000000000000000000000000000000000000000000000000000';
   let _totalSupply: number = 5;
   let _mintPriceGWei: number = 8;
   let _mintStart: number = Math.round(Date.now() / 1000) + 60;
@@ -38,8 +35,7 @@ describe('Offerring', () => {
 
   describe('placeOffer()', async () => {
     it('should place an offer', async () => {
-      const { offerring, nft, owner, otherAccount, anotherAccount } =
-        await deployContract();
+      const { offerring, owner } = await deployContract();
       const offer: number = 100;
 
       await offerring.placeOffer({ value: offer });
@@ -49,8 +45,7 @@ describe('Offerring', () => {
     });
 
     it('should increase totalNumOfOffers field by one', async () => {
-      const { offerring, nft, owner, otherAccount, anotherAccount } =
-        await deployContract();
+      const { offerring } = await deployContract();
       const offer: number = 100;
 
       const before = await offerring.totalNumOfOffers();
@@ -61,8 +56,7 @@ describe('Offerring', () => {
     });
 
     it('should emit OfferPlaced event', async () => {
-      const { offerring, nft, owner, otherAccount, anotherAccount } =
-        await deployContract();
+      const { offerring, nft, owner } = await deployContract();
 
       const offer: number = 100;
 
@@ -73,8 +67,7 @@ describe('Offerring', () => {
     });
 
     it('should throw an exception if account has placed an offer', async () => {
-      const { offerring, nft, owner, otherAccount, anotherAccount } =
-        await deployContract();
+      const { offerring } = await deployContract();
 
       const offer: number = 100;
       await offerring.placeOffer({ value: offer });
@@ -85,8 +78,7 @@ describe('Offerring', () => {
     });
 
     it('should throw an exception if offer is 0', async () => {
-      const { offerring, nft, owner, otherAccount, anotherAccount } =
-        await deployContract();
+      const { offerring } = await deployContract();
 
       await expect(offerring.placeOffer({ value: 0 })).be.rejectedWith(
         'Offer must be > 0'
@@ -96,8 +88,7 @@ describe('Offerring', () => {
 
   describe('updateOffer()', () => {
     it('should update accounts offer with value sent', async () => {
-      const { offerring, nft, owner, otherAccount, anotherAccount } =
-        await deployContract();
+      const { offerring, owner } = await deployContract();
 
       const formerOffer: number = 100;
       const newOffer: number = 200;
@@ -109,8 +100,7 @@ describe('Offerring', () => {
     });
 
     it('should not change totalNumOfOffers', async () => {
-      const { offerring, nft, owner, otherAccount, anotherAccount } =
-        await deployContract();
+      const { offerring } = await deployContract();
 
       const offer: number = 100;
       const newOffer: number = 30;
@@ -123,8 +113,7 @@ describe('Offerring', () => {
     });
 
     it('should emit OfferUpdated event', async () => {
-      const { offerring, nft, owner, otherAccount, anotherAccount } =
-        await deployContract();
+      const { offerring, nft, owner } = await deployContract();
 
       const formOffer: number = 100;
       const newOffer: number = 200;
@@ -137,8 +126,7 @@ describe('Offerring', () => {
     });
 
     it("should throw an exception if user hasn't placed an offer", async () => {
-      const { offerring, nft, owner, otherAccount, anotherAccount } =
-        await deployContract();
+      const { offerring } = await deployContract();
 
       const offer: number = 100;
 
@@ -148,8 +136,7 @@ describe('Offerring', () => {
     });
 
     it('should throw an excetion new offer is 0', async () => {
-      const { offerring, nft, owner, otherAccount, anotherAccount } =
-        await deployContract();
+      const { offerring } = await deployContract();
 
       const formerOffer: number = 100;
       const newOffer: number = 0;
@@ -161,8 +148,7 @@ describe('Offerring', () => {
     });
 
     it('should throw an excetion value equals offer', async () => {
-      const { offerring, nft, owner, otherAccount, anotherAccount } =
-        await deployContract();
+      const { offerring } = await deployContract();
 
       const formerOffer: number = 100;
       const newOffer: number = 100;
@@ -176,8 +162,7 @@ describe('Offerring', () => {
 
   describe('increaseOffer()', () => {
     it('should offer by value sent', async () => {
-      const { offerring, nft, owner, otherAccount, anotherAccount } =
-        await deployContract();
+      const { offerring, owner } = await deployContract();
 
       const formerOffer: number = 100;
       const extraOffer: number = 20;
@@ -189,8 +174,7 @@ describe('Offerring', () => {
     });
 
     it('should not change totalNumOfOffers', async () => {
-      const { offerring, nft, owner, otherAccount, anotherAccount } =
-        await deployContract();
+      const { offerring } = await deployContract();
 
       const offer: number = 100;
       const newOffer: number = 30;
@@ -203,8 +187,7 @@ describe('Offerring', () => {
     });
 
     it('should emit OfferIncreased event', async () => {
-      const { offerring, nft, owner, otherAccount, anotherAccount } =
-        await deployContract();
+      const { offerring, nft, owner } = await deployContract();
 
       const formerOffer: number = 100;
       const extraOffer: number = 20;
@@ -218,8 +201,7 @@ describe('Offerring', () => {
     });
 
     it("should throw an exception if invoker hasn't placed an offer", async () => {
-      const { offerring, nft, owner, otherAccount, anotherAccount } =
-        await deployContract();
+      const { offerring } = await deployContract();
 
       const extraOffer: number = 20;
 
@@ -229,8 +211,7 @@ describe('Offerring', () => {
     });
 
     it('should throw an exception if value sent if 0', async () => {
-      const { offerring, nft, owner, otherAccount, anotherAccount } =
-        await deployContract();
+      const { offerring } = await deployContract();
 
       const formerOffer: number = 100;
       const extraOffer: number = 0;
@@ -244,8 +225,7 @@ describe('Offerring', () => {
 
   describe('reduceOfferTo()', () => {
     it('should reduce offer by value passed as argument', async () => {
-      const { offerring, nft, owner, otherAccount, anotherAccount } =
-        await deployContract();
+      const { offerring, owner } = await deployContract();
 
       const from: number = 100;
       const to: number = 10;
@@ -257,8 +237,7 @@ describe('Offerring', () => {
     });
 
     it('should not change totalNumOfOffers', async () => {
-      const { offerring, nft, owner, otherAccount, anotherAccount } =
-        await deployContract();
+      const { offerring } = await deployContract();
 
       const from: number = 100;
       const to: number = 10;
@@ -271,8 +250,7 @@ describe('Offerring', () => {
     });
 
     it('should emit OfferReduced event', async () => {
-      const { offerring, nft, owner, otherAccount, anotherAccount } =
-        await deployContract();
+      const { offerring, nft, owner } = await deployContract();
 
       const from: number = 100;
       const to: number = 10;
@@ -283,8 +261,7 @@ describe('Offerring', () => {
     });
 
     it('should throw an exception if offer has not been placed', async () => {
-      const { offerring, nft, owner, otherAccount, anotherAccount } =
-        await deployContract();
+      const { offerring } = await deployContract();
 
       const to: number = 10;
 
@@ -294,8 +271,7 @@ describe('Offerring', () => {
     });
 
     it('should throw an exception if argument passed is 0', async () => {
-      const { offerring, nft, owner, otherAccount, anotherAccount } =
-        await deployContract();
+      const { offerring } = await deployContract();
 
       const from: number = 100;
       const to: number = 0;
@@ -307,8 +283,7 @@ describe('Offerring', () => {
     });
 
     it('should throw an exception if argument passed >= current offer', async () => {
-      const { offerring, nft, owner, otherAccount, anotherAccount } =
-        await deployContract();
+      const { offerring } = await deployContract();
 
       const from: number = 100;
       const to: number = 101;
@@ -322,8 +297,7 @@ describe('Offerring', () => {
 
   describe('withdrawOffer()', () => {
     it('should set offers account to 0', async () => {
-      const { offerring, nft, owner, otherAccount, anotherAccount } =
-        await deployContract();
+      const { offerring, owner } = await deployContract();
 
       const formerOffer: number = 100;
       await offerring.placeOffer({ value: formerOffer });
@@ -334,8 +308,7 @@ describe('Offerring', () => {
     });
 
     it('should reduce totalNumOfOffers by one', async () => {
-      const { offerring, nft, owner, otherAccount, anotherAccount } =
-        await deployContract();
+      const { offerring } = await deployContract();
 
       const offer: number = 100;
       await offerring.placeOffer({ value: offer });
@@ -347,8 +320,7 @@ describe('Offerring', () => {
     });
 
     it('should emit OfferWithdrawn evnt', async () => {
-      const { offerring, nft, owner, otherAccount, anotherAccount } =
-        await deployContract();
+      const { offerring, nft, owner } = await deployContract();
 
       const offer: number = 100;
       await offerring.placeOffer({ value: offer });
@@ -358,8 +330,7 @@ describe('Offerring', () => {
     });
 
     it('should throw an exception if offer has not been placed', async () => {
-      const { offerring, nft, owner, otherAccount, anotherAccount } =
-        await deployContract();
+      const { offerring } = await deployContract();
 
       await expect(offerring.withdrawOffer()).to.be.rejectedWith(
         'No offer have been placed by this buyer'
@@ -369,8 +340,7 @@ describe('Offerring', () => {
 
   describe('takeupOffer()', () => {
     it('should transfer nft from seller to buyer', async () => {
-      const { offerring, nft, owner, otherAccount, anotherAccount } =
-        await deployContract();
+      const { offerring, nft, owner, otherAccount } = await deployContract();
       const buyer = owner;
       const seller = otherAccount;
 
@@ -384,8 +354,7 @@ describe('Offerring', () => {
     });
 
     it('should set buyer offer value to default', async () => {
-      const { offerring, nft, owner, otherAccount, anotherAccount } =
-        await deployContract();
+      const { offerring, nft, owner, otherAccount } = await deployContract();
       const buyer = owner;
       const seller = otherAccount;
 
@@ -399,8 +368,7 @@ describe('Offerring', () => {
     });
 
     it('should reduce totalNumOfOffers by one', async () => {
-      const { offerring, nft, owner, otherAccount, anotherAccount } =
-        await deployContract();
+      const { offerring, nft, owner, otherAccount } = await deployContract();
       const buyer = owner;
       const seller = otherAccount;
 
@@ -415,8 +383,7 @@ describe('Offerring', () => {
     });
 
     it('should emit OfferTaken event', async () => {
-      const { offerring, nft, owner, otherAccount, anotherAccount } =
-        await deployContract();
+      const { offerring, nft, owner, otherAccount } = await deployContract();
       const buyer = owner;
       const seller = otherAccount;
 
@@ -449,8 +416,7 @@ describe('Offerring', () => {
     });
 
     it('should throw an exception if token owner has not approved contract', async () => {
-      const { offerring, nft, owner, otherAccount, anotherAccount } =
-        await deployContract();
+      const { offerring, nft, owner, otherAccount } = await deployContract();
       const buyer = owner;
       const seller = otherAccount;
 
@@ -465,8 +431,7 @@ describe('Offerring', () => {
     });
 
     it('should throw an exception if buyer has not placed offer', async () => {
-      const { offerring, nft, owner, otherAccount, anotherAccount } =
-        await deployContract();
+      const { offerring, nft, owner, otherAccount } = await deployContract();
       const buyer = owner;
       const seller = otherAccount;
 
@@ -479,8 +444,7 @@ describe('Offerring', () => {
     });
 
     it('should throw an exception if buyer equal seller', async () => {
-      const { offerring, nft, owner, otherAccount, anotherAccount } =
-        await deployContract();
+      const { offerring, nft, owner } = await deployContract();
       const buyer = owner;
       const seller = owner;
 
