@@ -7,13 +7,17 @@ import "./OfferringHelper.sol";
 import "./NFTHelper.sol";
 
 contract Offerring is OfferringHelper, NFTHelper, ReentrancyGuard {
-    mapping(address => uint256) internal offers;
-    uint256 private totalNumOfOffers;
+    mapping(address => uint) internal offers;
+    uint private totalNumOfOffers;
 
     ERC721 private nft;
 
     constructor(ERC721 _nft) OfferringHelper(_nft) NFTHelper(_nft) {
         nft = _nft;
+    }
+
+    function getBalance() public view returns (uint) {
+        return address(this).balance;
     }
 
     function getOffer(address buyer) public view returns (uint) {
@@ -49,7 +53,7 @@ contract Offerring is OfferringHelper, NFTHelper, ReentrancyGuard {
             "Sent value is same as current offer"
         );
 
-        uint256 formerOffer = offers[msg.sender];
+        uint formerOffer = offers[msg.sender];
         offers[msg.sender] = msg.value;
 
         payable(msg.sender).transfer(formerOffer);
@@ -69,7 +73,7 @@ contract Offerring is OfferringHelper, NFTHelper, ReentrancyGuard {
     }
 
     function reduceOfferTo(
-        uint256 to
+        uint to
     ) public nonReentrant placed(offers[msg.sender]) {
         require(to != 0, "Entered input must be > 0");
         require(
@@ -78,7 +82,7 @@ contract Offerring is OfferringHelper, NFTHelper, ReentrancyGuard {
         );
 
         uint from = offers[msg.sender];
-        uint256 remainingOffer = offers[msg.sender] - to;
+        uint remainingOffer = offers[msg.sender] - to;
         offers[msg.sender] = to;
 
         payable(msg.sender).transfer(remainingOffer);
@@ -86,7 +90,7 @@ contract Offerring is OfferringHelper, NFTHelper, ReentrancyGuard {
     }
 
     function withdrawOffer() public nonReentrant placed(offers[msg.sender]) {
-        uint256 offer = offers[msg.sender];
+        uint offer = offers[msg.sender];
         offers[msg.sender] = 0;
         totalNumOfOffers--;
 
@@ -96,7 +100,7 @@ contract Offerring is OfferringHelper, NFTHelper, ReentrancyGuard {
 
     function takeupOffer(
         address payable buyer,
-        uint256 tokenId
+        uint tokenId
     )
         public
         nonReentrant
@@ -104,7 +108,7 @@ contract Offerring is OfferringHelper, NFTHelper, ReentrancyGuard {
         approved(tokenId)
         placed(offers[buyer])
     {
-        uint256 offer = offers[buyer];
+        uint offer = offers[buyer];
         offers[buyer] = 0;
         totalNumOfOffers--;
         nft.transferFrom(msg.sender, buyer, tokenId);

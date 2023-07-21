@@ -8,30 +8,27 @@ import "./Offerring.sol";
 
 contract NFTMarketPlace is ListingHelper, Offerring {
     ERC721 private nft;
-    uint256 private totalTokenListed;
+    uint private totalTokenListed;
 
     constructor(ERC721 _nft) ListingHelper(_nft) Offerring(_nft) {
         nft = _nft;
     }
 
-    function getPrice(
-        address seller,
-        uint256 tokenId
-    ) public view returns (uint256) {
+    function getPrice(address seller, uint tokenId) public view returns (uint) {
         return listings[seller].prices[tokenId];
     }
 
-    function getMyTotalListedToken() public view returns (uint256) {
+    function getMyTotalListedToken() public view returns (uint) {
         return listings[msg.sender].totalTokenListed;
     }
 
-    function getTotalListedToken() public view returns (uint256) {
+    function getTotalListedToken() public view returns (uint) {
         return totalTokenListed;
     }
 
     function list(
-        uint256 tokenId,
-        uint256 price
+        uint tokenId,
+        uint price
     )
         public
         nonReentrant
@@ -49,39 +46,43 @@ contract NFTMarketPlace is ListingHelper, Offerring {
         emit ListCreated(nft, owner, tokenId, price);
     }
 
-    function changePrice(
-        uint256 tokenId,
-        uint256 price
+    function changeListPrice(
+        uint tokenId,
+        uint price
     )
         public
         nonReentrant
         tokenOwner(tokenId)
         approved(tokenId)
         listed(tokenId)
-        approved(tokenId)
         validPrice(price)
     {
         address owner = nft.ownerOf(tokenId);
+
+        require(
+            listings[owner].prices[tokenId] != price,
+            "Entered price already set"
+        );
+
         listings[owner].prices[tokenId] = price;
 
         emit ListUpdated(nft, owner, tokenId, price);
     }
 
-    function remove(address owner, uint256 tokenId) private {
+    function remove(address owner, uint tokenId) private {
         listings[owner].prices[tokenId] = 0;
         listings[owner].totalTokenListed--;
         totalTokenListed--;
     }
 
     function unlist(
-        uint256 tokenId
+        uint tokenId
     )
         public
         nonReentrant
         tokenOwner(tokenId)
         approved(tokenId)
         listed(tokenId)
-        approved(tokenId)
     {
         address owner = nft.ownerOf(tokenId);
         remove(owner, tokenId);
@@ -90,10 +91,17 @@ contract NFTMarketPlace is ListingHelper, Offerring {
     }
 
     function buy(
-        uint256 tokenId
-    ) public payable nonReentrant listed(tokenId) notOwner(tokenId) {
+        uint tokenId
+    )
+        public
+        payable
+        nonReentrant
+        approved(tokenId)
+        notOwner(tokenId)
+        listed(tokenId)
+    {
         address owner = nft.ownerOf(tokenId);
-        uint256 price = listings[owner].prices[tokenId];
+        uint price = listings[owner].prices[tokenId];
 
         require(
             msg.value == price,

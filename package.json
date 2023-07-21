@@ -17,7 +17,6 @@
     "@nomicfoundation/hardhat-toolbox": "^3.0.0",
     "@types/sinon": "^10.0.15",
     "hardhat": "^2.16.1",
-    "sinon": "^15.2.0",
     "ts-node": "^10.9.1"
   },
   "dependencies": {
