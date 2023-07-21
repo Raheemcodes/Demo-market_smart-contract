@@ -36,8 +36,7 @@ describe('NFTMarketPlace', () => {
 
   describe('list()', () => {
     it('should set price for token in lists mapping', async () => {
-      const { marketplace, nft, owner, otherAccount, anotherAccount } =
-        await deployContract();
+      const { marketplace, nft, owner } = await deployContract();
 
       const price: number = 3000;
       const { tokenId } = await safeMint(nft, owner, _mintPriceGWei);
@@ -49,8 +48,7 @@ describe('NFTMarketPlace', () => {
     });
 
     it('should increase totalTokenListed of List struct by one', async () => {
-      const { marketplace, nft, owner, otherAccount, anotherAccount } =
-        await deployContract();
+      const { marketplace, nft, owner } = await deployContract();
 
       const price: number = 3000;
       const { tokenId } = await safeMint(nft, owner, _mintPriceGWei);
@@ -63,8 +61,7 @@ describe('NFTMarketPlace', () => {
     });
 
     it('should increase the base totalTokenListed', async () => {
-      const { marketplace, nft, owner, otherAccount, anotherAccount } =
-        await deployContract();
+      const { marketplace, nft, owner } = await deployContract();
 
       const price: number = 3000;
       const { tokenId } = await safeMint(nft, owner, _mintPriceGWei);
@@ -77,8 +74,7 @@ describe('NFTMarketPlace', () => {
     });
 
     it('should emit ListCreated event', async () => {
-      const { marketplace, nft, owner, otherAccount, anotherAccount } =
-        await deployContract();
+      const { marketplace, nft, owner } = await deployContract();
 
       const price: number = 3000;
       const { tokenId } = await safeMint(nft, owner, _mintPriceGWei);
@@ -91,8 +87,7 @@ describe('NFTMarketPlace', () => {
     });
 
     it('should throw an exception if caller is not token owner', async () => {
-      const { marketplace, nft, owner, otherAccount, anotherAccount } =
-        await deployContract();
+      const { marketplace, nft, owner, otherAccount } = await deployContract();
 
       const price: number = 3000;
       const { tokenId } = await safeMint(nft, owner, _mintPriceGWei);
@@ -104,8 +99,7 @@ describe('NFTMarketPlace', () => {
     });
 
     it('should throw an exception if token owner has not approved this contract', async () => {
-      const { marketplace, nft, owner, otherAccount, anotherAccount } =
-        await deployContract();
+      const { marketplace, nft, owner } = await deployContract();
 
       const price: number = 3000;
       const { tokenId } = await safeMint(nft, owner, _mintPriceGWei);
@@ -116,8 +110,7 @@ describe('NFTMarketPlace', () => {
     });
 
     it('should throw an eception if token is listed', async () => {
-      const { marketplace, nft, owner, otherAccount, anotherAccount } =
-        await deployContract();
+      const { marketplace, nft, owner } = await deployContract();
 
       const price: number = 3000;
       const { tokenId } = await safeMint(nft, owner, _mintPriceGWei);
@@ -130,8 +123,7 @@ describe('NFTMarketPlace', () => {
     });
 
     it('should throw an exception if price <= 0', async () => {
-      const { marketplace, nft, owner, otherAccount, anotherAccount } =
-        await deployContract();
+      const { marketplace, nft, owner } = await deployContract();
 
       const price: number = 0;
       const { tokenId } = await safeMint(nft, owner, _mintPriceGWei);
@@ -145,8 +137,7 @@ describe('NFTMarketPlace', () => {
 
   describe('changeListPrice()', () => {
     it('should change token list price', async () => {
-      const { marketplace, nft, owner, otherAccount, anotherAccount } =
-        await deployContract();
+      const { marketplace, nft, owner } = await deployContract();
 
       const price: number = 10;
       const newPrice: number = 100;
@@ -160,8 +151,7 @@ describe('NFTMarketPlace', () => {
     });
 
     it('should emit ListUpdated event', async () => {
-      const { marketplace, nft, owner, otherAccount, anotherAccount } =
-        await deployContract();
+      const { marketplace, nft, owner } = await deployContract();
 
       const price: number = 10;
       const newPrice: number = 100;
@@ -176,8 +166,7 @@ describe('NFTMarketPlace', () => {
     });
 
     it('should not change the state of totalTokenListed within seller List struct', async () => {
-      const { marketplace, nft, owner, otherAccount, anotherAccount } =
-        await deployContract();
+      const { marketplace, nft, owner } = await deployContract();
 
       const price: number = 10;
       const newPrice: number = 100;
@@ -192,8 +181,7 @@ describe('NFTMarketPlace', () => {
     });
 
     it('should not change the state of base totalTokenListed', async () => {
-      const { marketplace, nft, owner, otherAccount, anotherAccount } =
-        await deployContract();
+      const { marketplace, nft, owner } = await deployContract();
 
       const price: number = 10;
       const newPrice: number = 100;
@@ -208,8 +196,7 @@ describe('NFTMarketPlace', () => {
     });
 
     it('should throw an exception if caller is not token owner', async () => {
-      const { marketplace, nft, owner, otherAccount, anotherAccount } =
-        await deployContract();
+      const { marketplace, nft, owner, otherAccount } = await deployContract();
 
       const price: number = 3000;
       const newPrice: number = 10;
@@ -225,8 +212,7 @@ describe('NFTMarketPlace', () => {
     });
 
     it('should throw an exception if contract is not approve to transfer token', async () => {
-      const { marketplace, nft, owner, otherAccount, anotherAccount } =
-        await deployContract();
+      const { marketplace, nft, owner } = await deployContract();
 
       const price: number = 3000;
       const newPrice: number = 10;
@@ -243,8 +229,7 @@ describe('NFTMarketPlace', () => {
     });
 
     it('should throw an exception if token is not listed', async () => {
-      const { marketplace, nft, owner, otherAccount, anotherAccount } =
-        await deployContract();
+      const { marketplace, nft, owner } = await deployContract();
 
       const price: number = 10;
       const { tokenId } = await safeMint(nft, owner, _mintPriceGWei);
@@ -256,8 +241,7 @@ describe('NFTMarketPlace', () => {
     });
 
     it('should throw an exception if price <= 0', async () => {
-      const { marketplace, nft, owner, otherAccount, anotherAccount } =
-        await deployContract();
+      const { marketplace, nft, owner } = await deployContract();
 
       const price: number = 3000;
       const newPrice: number = 0;
@@ -271,8 +255,7 @@ describe('NFTMarketPlace', () => {
     });
 
     it('should throw an exception if entered price is same as list price', async () => {
-      const { marketplace, nft, owner, otherAccount, anotherAccount } =
-        await deployContract();
+      const { marketplace, nft, owner } = await deployContract();
 
       const price: number = 10;
       const newPrice: number = 10;
@@ -288,8 +271,7 @@ describe('NFTMarketPlace', () => {
 
   describe('unlist()', () => {
     it('should reset List price to default', async () => {
-      const { marketplace, nft, owner, otherAccount, anotherAccount } =
-        await deployContract();
+      const { marketplace, nft, owner } = await deployContract();
 
       const price: number = 10;
       const { tokenId } = await safeMint(nft, owner, _mintPriceGWei);
@@ -302,8 +284,7 @@ describe('NFTMarketPlace', () => {
     });
 
     it('should reduce totalTokenListed in List strut by one', async () => {
-      const { marketplace, nft, owner, otherAccount, anotherAccount } =
-        await deployContract();
+      const { marketplace, nft, owner } = await deployContract();
 
       const price: number = 10;
       const { tokenId } = await safeMint(nft, owner, _mintPriceGWei);
@@ -317,8 +298,7 @@ describe('NFTMarketPlace', () => {
     });
 
     it('should reduce base totalTokenListed by one', async () => {
-      const { marketplace, nft, owner, otherAccount, anotherAccount } =
-        await deployContract();
+      const { marketplace, nft, owner } = await deployContract();
 
       const price: number = 10;
       const { tokenId } = await safeMint(nft, owner, _mintPriceGWei);
@@ -332,8 +312,7 @@ describe('NFTMarketPlace', () => {
     });
 
     it('should emit ListRemoved event', async () => {
-      const { marketplace, nft, owner, otherAccount, anotherAccount } =
-        await deployContract();
+      const { marketplace, nft, owner } = await deployContract();
 
       const price: number = 10;
       const { tokenId } = await safeMint(nft, owner, _mintPriceGWei);
@@ -345,8 +324,7 @@ describe('NFTMarketPlace', () => {
     });
 
     it('should throw an exception if not the token owner', async () => {
-      const { marketplace, nft, owner, otherAccount, anotherAccount } =
-        await deployContract();
+      const { marketplace, nft, owner, otherAccount } = await deployContract();
 
       const price: number = 10;
       const { tokenId } = await safeMint(nft, owner, _mintPriceGWei);
@@ -359,8 +337,7 @@ describe('NFTMarketPlace', () => {
     });
 
     it('should throw an exception if contract is not approved to transfer token', async () => {
-      const { marketplace, nft, owner, otherAccount, anotherAccount } =
-        await deployContract();
+      const { marketplace, nft, owner } = await deployContract();
 
       const price: number = 10;
       const { tokenId } = await safeMint(nft, owner, _mintPriceGWei);
@@ -376,10 +353,8 @@ describe('NFTMarketPlace', () => {
     });
 
     it('should throw an exception if token is not listed', async () => {
-      const { marketplace, nft, owner, otherAccount, anotherAccount } =
-        await deployContract();
+      const { marketplace, nft, owner } = await deployContract();
 
-      const price: number = 10;
       const { tokenId } = await safeMint(nft, owner, _mintPriceGWei);
       await nft.connect(owner).setApprovalForAll(marketplace, true);
 
@@ -391,8 +366,7 @@ describe('NFTMarketPlace', () => {
 
   describe('buy()', () => {
     it('should reset List price to default', async () => {
-      const { marketplace, nft, owner, otherAccount, anotherAccount } =
-        await deployContract();
+      const { marketplace, nft, owner, otherAccount } = await deployContract();
 
       const price: number = 10;
       const { tokenId } = await safeMint(nft, owner, _mintPriceGWei);
@@ -407,8 +381,7 @@ describe('NFTMarketPlace', () => {
     });
 
     it('should reduce totalTokenListed in List strut by one', async () => {
-      const { marketplace, nft, owner, otherAccount, anotherAccount } =
-        await deployContract();
+      const { marketplace, nft, owner, otherAccount } = await deployContract();
 
       const price: number = 10;
       const { tokenId } = await safeMint(nft, owner, _mintPriceGWei);
@@ -424,8 +397,7 @@ describe('NFTMarketPlace', () => {
     });
 
     it('should reduce base totalTokenListed by one', async () => {
-      const { marketplace, nft, owner, otherAccount, anotherAccount } =
-        await deployContract();
+      const { marketplace, nft, owner, otherAccount } = await deployContract();
 
       const price: number = 10;
       const { tokenId } = await safeMint(nft, owner, _mintPriceGWei);
@@ -441,8 +413,7 @@ describe('NFTMarketPlace', () => {
     });
 
     it('should transfer token ownership to buyer', async () => {
-      const { marketplace, nft, owner, otherAccount, anotherAccount } =
-        await deployContract();
+      const { marketplace, nft, owner, otherAccount } = await deployContract();
       const buyer = otherAccount;
 
       const price: number = 10;
@@ -456,8 +427,7 @@ describe('NFTMarketPlace', () => {
     });
 
     it('should emit ListPurchased event', async () => {
-      const { marketplace, nft, owner, otherAccount, anotherAccount } =
-        await deployContract();
+      const { marketplace, nft, owner, otherAccount } = await deployContract();
       const buyer = otherAccount;
       const seller = owner;
 
@@ -475,8 +445,7 @@ describe('NFTMarketPlace', () => {
     });
 
     it('should throw an exception if contract is not approved to transfer token', async () => {
-      const { marketplace, nft, owner, otherAccount, anotherAccount } =
-        await deployContract();
+      const { marketplace, nft, owner, otherAccount } = await deployContract();
       const seller = owner;
       const buyer = otherAccount;
 
@@ -494,8 +463,7 @@ describe('NFTMarketPlace', () => {
     });
 
     it('should throw an exception if caller is token owner', async () => {
-      const { marketplace, nft, owner, otherAccount, anotherAccount } =
-        await deployContract();
+      const { marketplace, nft, owner } = await deployContract();
       const seller = owner;
 
       const price: number = 10;
@@ -509,8 +477,7 @@ describe('NFTMarketPlace', () => {
     });
 
     it('should throw an exception if token is not listed', async () => {
-      const { marketplace, nft, owner, otherAccount, anotherAccount } =
-        await deployContract();
+      const { marketplace, nft, owner, otherAccount } = await deployContract();
       const buyer = otherAccount;
       const seller = owner;
 
@@ -524,8 +491,7 @@ describe('NFTMarketPlace', () => {
     });
 
     it('should throw an exception if value sent is not equal to price', async () => {
-      const { marketplace, nft, owner, otherAccount, anotherAccount } =
-        await deployContract();
+      const { marketplace, nft, owner, otherAccount } = await deployContract();
       const buyer = otherAccount;
       const seller = owner;
 
