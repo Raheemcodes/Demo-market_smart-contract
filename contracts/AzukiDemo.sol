@@ -22,9 +22,9 @@ contract AzukiDemo is ERC721, AccessControl {
 
     bytes32 public constant MINTER_ROLE = keccak256("MINTER_ROLE");
 
-    uint public totalSupply;
+    uint private totalSupply;
 
-    Mint public mint;
+    Mint private mint;
 
     mapping(uint => uint) tokenIdMap;
 
@@ -87,6 +87,14 @@ contract AzukiDemo is ERC721, AccessControl {
             tokenIdMap[j] = tokenIdMap[i];
             tokenIdMap[i] = temp;
         }
+    }
+
+    function getMint() public view returns (Mint memory) {
+        return mint;
+    }
+
+    function getTotalSupply() public view returns (uint) {
+        return totalSupply;
     }
 
     function resetMint(

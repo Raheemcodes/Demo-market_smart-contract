@@ -1,6 +1,5 @@
-import fs from 'fs';
-import { HardhatUserConfig } from 'hardhat/config';
 import '@nomicfoundation/hardhat-toolbox';
+import fs from 'fs';
 import path from 'path';
 
 const INFURA_API_KEY = fs

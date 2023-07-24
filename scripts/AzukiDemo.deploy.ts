@@ -1,4 +1,6 @@
 import { ethers } from 'hardhat';
+import fs from 'fs';
+import path from 'path';
 
 (async () => {
   try {
@@ -17,6 +19,7 @@ import { ethers } from 'hardhat';
     ]);
 
     await nft.waitForDeployment();
+    const address: string = await nft.getAddress();
 
     console.log(
       'arguments:',
@@ -27,7 +30,9 @@ import { ethers } from 'hardhat';
       _publicsale
     );
 
-    console.log(`Deployed at ${await nft.getAddress()}`);
+    console.log(`Deployed at ${address}`);
+
+    fs.writeFileSync(path.resolve('private', '.nftAddress'), address);
   } catch (err) {
     console.error(err);
     process.exitCode = 1;

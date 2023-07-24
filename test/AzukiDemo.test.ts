@@ -4,7 +4,6 @@ import { expect } from 'chai';
 import { ethers } from 'hardhat';
 
 describe('NFT', () => {
-  // const DEFAULT_ADDRESS = '0x0000000000000000000000000000000000000000';
   const MINTER_ROLE = ethers.keccak256(ethers.toUtf8Bytes('MINTER_ROLE'));
   const ADMIN_ROLE =
     '0x0000000000000000000000000000000000000000000000000000000000000000';
@@ -63,9 +62,9 @@ describe('NFT', () => {
     it('should set values passed as argument to respective fields', async () => {
       const { instance } = await deployContract();
 
-      const totalSupply: bigint = await instance.totalSupply();
+      const totalSupply: bigint = await instance.getTotalSupply();
 
-      const mint = await instance.mint();
+      const mint = await instance.getMint();
       const mintPriceGWei: number = +ethers.formatUnits(mint.priceGWei, 'gwei');
       const mintStart: bigint = mint.time.start;
       const publicSale: bigint = mint.time.publicSale;
@@ -430,7 +429,7 @@ describe('NFT', () => {
 
     it('should increase by one after each mint', async () => {
       const { instance, otherAccount } = await deployContract();
-      const beforeMint = (await instance.mint()).total;
+      const beforeMint = (await instance.getMint()).total;
 
       await time.increaseTo(_mintStart + _presale);
 
@@ -438,7 +437,7 @@ describe('NFT', () => {
         .connect(otherAccount)
         .safeMint({ value: ethers.parseUnits(`${_mintPriceGWei}`, 'gwei') });
 
-      const afterMint = (await instance.mint()).total;
+      const afterMint = (await instance.getMint()).total;
 
       expect(beforeMint + BigInt(1)).to.equal(afterMint);
     });
@@ -452,9 +451,9 @@ describe('NFT', () => {
       await instance
         .connect(owner)
         .safeMint({ value: ethers.parseUnits(`${_mintPriceGWei}`, 'gwei') });
-      const beforeBurnTotal = (await instance.mint()).total;
+      const beforeBurnTotal = (await instance.getMint()).total;
       await instance.connect(owner).burn();
-      const afterBurnTotal = (await instance.mint()).total;
+      const afterBurnTotal = (await instance.getMint()).total;
 
       expect(beforeBurnTotal - BigInt(1)).to.equal(afterBurnTotal);
     });
@@ -506,7 +505,7 @@ describe('NFT', () => {
 
       await instance.connect(owner).resetMint(newMintTime, presale, publicsale);
 
-      mint = await instance.mint();
+      mint = await instance.getMint();
     });
 
     it('should be able to reset mint start time, presale and public duration when invoked', async () => {
