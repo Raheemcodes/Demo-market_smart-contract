@@ -7,6 +7,7 @@
     "start": "npx hardhat node",
     "gen": "node -r ts-node/register gen.ts AzukiDemo && node -r ts-node/register gen.ts NFTMarketPlace",
     "compile": "npx hardhat compile && npm run gen",
+    "deploy:nft": "npx hardhat run scripts/AzukiDemo.deploy.ts --network",
     "deploy": "npx hardhat run scripts/NFTMarketPlace.deploy.ts --network",
     "verify": "npx hardhat verify --network",
     "console": "npx hardhat console",
@@ -21,6 +22,7 @@
     "ts-node": "^10.9.1"
   },
   "dependencies": {
-    "@openzeppelin/contracts": "^4.9.2"
+    "@openzeppelin/contracts": "^4.9.2",
+    "socket.io": "^4.7.1"
   }
 }

@@ -17,6 +17,6 @@ fs.writeFileSync(
   `const ${name}Abi = ${stringifyAbi} as const; export default ${name}Abi;`
 );
 fs.writeFileSync(
-  path.join('..', 'server', 'src', 'helper', `${name}Abi.helper.ts`),
+  path.join('..', 'server', 'src', 'helpers', `${name}Abi.helper.ts`),
   `const ${name}Abi = ${stringifyAbi} as const; export default ${name}Abi;`
 );
