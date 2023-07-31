@@ -38,7 +38,7 @@ contract Offerring is OfferringHelper, NFTHelper, ReentrancyGuard {
         offers[msg.sender] = msg.value;
         totalNumOfOffers++;
 
-        emit OfferPlaced(nft, msg.sender, msg.value);
+        emit OfferPlaced(msg.sender, msg.value);
     }
 
     function updateOffer()
@@ -57,7 +57,7 @@ contract Offerring is OfferringHelper, NFTHelper, ReentrancyGuard {
         offers[msg.sender] = msg.value;
 
         payable(msg.sender).transfer(formerOffer);
-        emit OfferUpdated(nft, msg.sender, formerOffer, offers[msg.sender]);
+        emit OfferUpdated(msg.sender, formerOffer, offers[msg.sender]);
     }
 
     function increaseOffer()
@@ -69,7 +69,7 @@ contract Offerring is OfferringHelper, NFTHelper, ReentrancyGuard {
         uint from = offers[msg.sender];
         offers[msg.sender] += msg.value;
 
-        emit OfferIncreased(nft, msg.sender, from, offers[msg.sender]);
+        emit OfferIncreased(msg.sender, from, offers[msg.sender]);
     }
 
     function reduceOfferTo(
@@ -86,7 +86,7 @@ contract Offerring is OfferringHelper, NFTHelper, ReentrancyGuard {
         offers[msg.sender] = to;
 
         payable(msg.sender).transfer(remainingOffer);
-        emit OfferReduced(nft, msg.sender, from, to);
+        emit OfferReduced(msg.sender, from, to);
     }
 
     function withdrawOffer() public nonReentrant placed(offers[msg.sender]) {
@@ -95,7 +95,7 @@ contract Offerring is OfferringHelper, NFTHelper, ReentrancyGuard {
         totalNumOfOffers--;
 
         payable(msg.sender).transfer(offer);
-        emit OfferWithdrawn(nft, msg.sender, offer);
+        emit OfferWithdrawn(msg.sender, offer);
     }
 
     function takeupOffer(
@@ -119,6 +119,6 @@ contract Offerring is OfferringHelper, NFTHelper, ReentrancyGuard {
         );
 
         payable(msg.sender).transfer(offer);
-        emit OfferTaken(nft, buyer, msg.sender, tokenId, offer);
+        emit OfferTaken(buyer, msg.sender, tokenId, offer);
     }
 }

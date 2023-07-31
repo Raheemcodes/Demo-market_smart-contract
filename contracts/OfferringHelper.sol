@@ -4,32 +4,16 @@ pragma solidity ^0.8.18;
 import "@openzeppelin/contracts/token/ERC721/ERC721.sol";
 
 contract OfferringHelper {
-    event OfferPlaced(ERC721 indexed nft, address indexed buyer, uint256 offer);
+    event OfferPlaced(address indexed buyer, uint256 offer);
     event OfferUpdated(
-        ERC721 indexed nft,
         address indexed buyer,
         uint256 formerOffer,
         uint newOffer
     );
-    event OfferReduced(
-        ERC721 indexed nft,
-        address indexed buyer,
-        uint256 from,
-        uint to
-    );
-    event OfferIncreased(
-        ERC721 indexed nft,
-        address indexed buyer,
-        uint256 from,
-        uint to
-    );
-    event OfferWithdrawn(
-        ERC721 indexed nft,
-        address indexed buyer,
-        uint256 offer
-    );
+    event OfferReduced(address indexed buyer, uint256 from, uint to);
+    event OfferIncreased(address indexed buyer, uint256 from, uint to);
+    event OfferWithdrawn(address indexed buyer, uint256 offer);
     event OfferTaken(
-        ERC721 indexed nft,
         address indexed buyer,
         address indexed seller,
         uint256 tokenId,

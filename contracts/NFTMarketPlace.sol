@@ -43,7 +43,7 @@ contract NFTMarketPlace is ListingHelper, Offerring {
         listings[owner].totalTokenListed++;
         totalTokenListed++;
 
-        emit ListCreated(nft, owner, tokenId, price);
+        emit ListCreated(owner, tokenId, price);
     }
 
     function changeListPrice(
@@ -66,7 +66,7 @@ contract NFTMarketPlace is ListingHelper, Offerring {
 
         listings[owner].prices[tokenId] = price;
 
-        emit ListUpdated(nft, owner, tokenId, price);
+        emit ListUpdated(owner, tokenId, price);
     }
 
     function remove(address owner, uint tokenId) private {
@@ -87,7 +87,7 @@ contract NFTMarketPlace is ListingHelper, Offerring {
         address owner = nft.ownerOf(tokenId);
         remove(owner, tokenId);
 
-        emit ListRemoved(nft, owner, tokenId);
+        emit ListRemoved(owner, tokenId);
     }
 
     function buy(
@@ -118,6 +118,6 @@ contract NFTMarketPlace is ListingHelper, Offerring {
         nft.safeTransferFrom(owner, msg.sender, tokenId);
 
         payable(owner).transfer(price);
-        emit ListPurchased(nft, owner, msg.sender, tokenId, price);
+        emit ListPurchased(owner, msg.sender, tokenId, price);
     }
 }

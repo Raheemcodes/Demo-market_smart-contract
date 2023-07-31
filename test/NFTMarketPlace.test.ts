@@ -83,7 +83,7 @@ describe('NFTMarketPlace', () => {
 
       expect(tx)
         .emit(marketplace, 'ListCreated')
-        .withArgs(nft, owner, tokenId, price);
+        .withArgs(owner, tokenId, price);
     });
 
     it('should throw an exception if caller is not token owner', async () => {
@@ -162,7 +162,7 @@ describe('NFTMarketPlace', () => {
 
       expect(tx)
         .emit(marketplace, 'ListUpdated')
-        .withArgs(nft, owner, tokenId, newPrice);
+        .withArgs(owner, tokenId, newPrice);
     });
 
     it('should not change the state of totalTokenListed within seller List struct', async () => {
@@ -320,7 +320,7 @@ describe('NFTMarketPlace', () => {
       await marketplace.list(Number(tokenId), price);
       const tx = await marketplace.connect(owner).unlist(Number(tokenId));
 
-      expect(tx).emit(marketplace, 'ListRemoved').withArgs(nft, owner, tokenId);
+      expect(tx).emit(marketplace, 'ListRemoved').withArgs(owner, tokenId);
     });
 
     it('should throw an exception if not the token owner', async () => {
@@ -441,7 +441,7 @@ describe('NFTMarketPlace', () => {
 
       expect(tx)
         .emit(marketplace, 'ListPurchased')
-        .withArgs(nft, seller, buyer, price);
+        .withArgs(seller, buyer, price);
     });
 
     it('should throw an exception if contract is not approved to transfer token', async () => {

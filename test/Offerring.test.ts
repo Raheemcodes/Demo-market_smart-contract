@@ -61,9 +61,7 @@ describe('Offerring', () => {
       const offer: number = 100;
 
       const txResult = await offerring.placeOffer({ value: offer });
-      expect(txResult)
-        .emit(offerring, 'OfferPlaced')
-        .withArgs(nft, owner, offer);
+      expect(txResult).emit(offerring, 'OfferPlaced').withArgs(owner, offer);
     });
 
     it('should increase contract balance by price sent', async () => {
@@ -133,7 +131,7 @@ describe('Offerring', () => {
 
       expect(tx)
         .emit(offerring, 'OfferUpdated')
-        .withArgs(nft, owner, formOffer, newOffer);
+        .withArgs(owner, formOffer, newOffer);
     });
 
     it('should subtract from offer from contract balance and add new offer', async () => {
@@ -223,7 +221,7 @@ describe('Offerring', () => {
 
       expect(tx)
         .emit(offerring, 'OfferIncreased')
-        .withArgs(nft, owner, formerOffer, offer);
+        .withArgs(owner, formerOffer, offer);
     });
 
     it('should increase  contract balance by new offer sent', async () => {
@@ -296,7 +294,7 @@ describe('Offerring', () => {
       await offerring.placeOffer({ value: from });
       const tx = await offerring.reduceOfferTo(to);
 
-      expect(tx).emit(offerring, 'OfferReduced').withArgs(nft, owner, from, to);
+      expect(tx).emit(offerring, 'OfferReduced').withArgs(owner, from, to);
     });
 
     it('should reduce contract balance by new difference between buyers balance and offer passed', async () => {
@@ -378,7 +376,7 @@ describe('Offerring', () => {
       await offerring.placeOffer({ value: offer });
       const tx = await offerring.withdrawOffer();
 
-      expect(tx).emit(offerring, 'OfferWithdrawn').withArgs(nft, owner, offer);
+      expect(tx).emit(offerring, 'OfferWithdrawn').withArgs(owner, offer);
     });
 
     it('should reduce contract balance by buyer offer', async () => {
@@ -461,7 +459,7 @@ describe('Offerring', () => {
 
       expect(tx)
         .emit(offerring, 'OfferTaken')
-        .withArgs(nft, buyer, seller, tokenId, offer);
+        .withArgs(buyer, seller, tokenId, offer);
     });
 
     it('should reduce contract balance by buyer offer', async () => {
