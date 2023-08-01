@@ -26,7 +26,8 @@ contract AzukiDemo is ERC721, AccessControl {
 
     Mint private mint;
 
-    mapping(uint => uint) tokenIdMap;
+    mapping(uint => uint) private tokenIdMap;
+    mapping(address => bool) private minters;
 
     constructor(
         uint _totalSupply,
@@ -97,6 +98,10 @@ contract AzukiDemo is ERC721, AccessControl {
         return totalSupply;
     }
 
+    function isMinted(address _account) public view returns (bool) {
+        return minters[_account];
+    }
+
     function resetMint(
         uint _mintStart,
         uint _presale,
@@ -126,13 +131,14 @@ contract AzukiDemo is ERC721, AccessControl {
             curTime < mint.time.end && curTime >= mint.time.start,
             "Mint has either ended or not started"
         );
-        require(balanceOf(msg.sender) == 0, "You've minted!");
+        require(!isMinted(msg.sender), "You've minted!");
         require(mint.total < totalSupply, "All token have been minted");
         require(msg.value == mint.priceGWei, "Invalid amount");
 
         if (curTime < mint.time.publicSale) presaleMint();
         else publicMint();
 
+        minters[msg.sender] = true;
         mint.total++;
     }
 
