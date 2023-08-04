@@ -66,8 +66,7 @@ contract AzukiDemo is ERC721, AccessControl {
     }
 
     function _baseURI() internal pure override returns (string memory) {
-        return
-            "https://ipfs.io/ipfs/QmZcH4YvBVVRJtdn4RdbaqgspFU8gH6P9vomDpBVpAL3u4/";
+        return "https://api.coolcatsnft.com/cat/";
     }
 
     function shuffleArr() private onlyRole(DEFAULT_ADMIN_ROLE) {
