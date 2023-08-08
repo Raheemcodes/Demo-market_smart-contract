@@ -1,9 +1,9 @@
 import { ethers } from 'hardhat';
-import { AzukiDemo } from '../../typechain-types';
+import { NFTDemo } from '../../typechain-types';
 import { ContractRunner } from 'ethers';
 
 const safeMint = async (
-  nft: AzukiDemo,
+  nft: NFTDemo,
   seller: ContractRunner,
   price: number
 ) => {

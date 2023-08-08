@@ -14,9 +14,9 @@ describe('Offerring', () => {
     const [owner, otherAccount, anotherAccount, ...accounts] =
       await ethers.getSigners();
 
-    const AzukiDemo = await ethers.getContractFactory('AzukiDemo');
+    const NFTDemo = await ethers.getContractFactory('NFTDemo');
     const Offerring = await ethers.getContractFactory('Offerring');
-    const nft = await AzukiDemo.deploy(
+    const nft = await NFTDemo.deploy(
       _totalSupply,
       _mintPriceGWei,
       _mintStart,

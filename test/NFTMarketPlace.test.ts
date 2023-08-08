@@ -15,9 +15,9 @@ describe('NFTMarketPlace', () => {
     const [owner, otherAccount, anotherAccount, ...accounts] =
       await ethers.getSigners();
 
-    const AzukiDemo = await ethers.getContractFactory('AzukiDemo');
+    const NFTDemo = await ethers.getContractFactory('NFTDemo');
     const NFTMarketPlace = await ethers.getContractFactory('NFTMarketPlace');
-    const nft = await AzukiDemo.deploy(
+    const nft = await NFTDemo.deploy(
       _totalSupply,
       _mintPriceGWei,
       _mintStart,
