@@ -9,7 +9,7 @@
     "compile": "npx hardhat compile && npm run gen",
     "deploy:nft": "npx hardhat run scripts/NFTDemo.deploy.ts --network",
     "deploy": "npx hardhat run scripts/NFTMarketPlace.deploy.ts --network",
-    "verify": "npx hardhat verify --network",
+    "verify": "npx hardhat verify --network sepolia",
     "console": "npx hardhat console",
     "test": "npx hardhat test"
   },
@@ -17,12 +17,9 @@
   "license": "ISC",
   "devDependencies": {
     "@nomicfoundation/hardhat-toolbox": "^3.0.0",
-    "@types/sinon": "^10.0.15",
-    "hardhat": "^2.16.1",
-    "ts-node": "^10.9.1"
+    "hardhat": "^2.16.1"
   },
   "dependencies": {
-    "@openzeppelin/contracts": "^4.9.2",
-    "socket.io": "^4.7.1"
+    "@openzeppelin/contracts": "^4.9.2"
   }
 }
